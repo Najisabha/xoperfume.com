@@ -48,7 +48,14 @@
         "contact_us": "Contact Us",
         "follow_us": "Follow Us",
         "follow_us_desc": "Follow us on Instagram for the latest updates, behind-the-scenes content, and more.",
-        "rights_reserved": "© {year} XO Perfumes. All rights reserved."
+        "rights_reserved": "© {year} XO Perfumes. All rights reserved.",
+        "newsletter": "Newsletter",
+        "newsletter_desc": "Subscribe to our newsletter for the latest updates and exclusive offers.",
+        "email_placeholder": "Your email address",
+        "subscribe": "Subscribe",
+        "subscribing": "Subscribing...",
+        "subscribe_success": "Successfully subscribed!",
+        "subscribe_error": "Failed to subscribe"
     },
     "wishlist": {
         "title": "My Wishlist",
@@ -220,5 +227,25 @@
             "password_min": "Password must be at least 6 characters",
             "passwords_mismatch": "Passwords don't match"
         }
+    },
+    "profile": {
+        "title": "My Account",
+        "profile": "Profile",
+        "password": "Password",
+        "addresses": "Addresses",
+        "orders": "Orders",
+        "empty_orders": "You haven't placed any orders yet",
+        "start_shopping": "Start Shopping",
+        "save_changes": "Save Changes",
+        "saving": "Saving...",
+        "phone": "Phone",
+        "optional": "optional",
+        "success_update": "Your profile has been updated",
+        "error_update": "Failed to update profile",
+        "new_password": "New Password",
+        "confirm_password": "Confirm New Password",
+        "password_success": "Password updated successfully",
+        "password_error": "Failed to update password",
+        "view_order": "View Order"
     }
 }

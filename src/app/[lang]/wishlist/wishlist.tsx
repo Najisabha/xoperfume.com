@@ -40,7 +40,7 @@ export default function WishlistPage({ dict, lang }: { dict: any, lang: string }
   }
 
   return (
-    <div className="container mx-auto px-4 py-16">
+    <div className="container mx-auto px-4 py-16" dir={lang === "ar" || lang === "he" ? "rtl" : "ltr"}>
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="mb-2 text-2xl font-bold">{w.title}</h1>

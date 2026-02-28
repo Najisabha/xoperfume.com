@@ -97,10 +97,11 @@ export default function Navbar({ lang, dict, categories, products, headerAd }: {
 
   const h = dict.header
   const currentLang = FLAG_MAP[lang] ?? { flag: "🌐", label: lang.toUpperCase() }
+  const isRtl = lang === "ar" || lang === "he"
 
   return (
     <>
-      <header className={`sticky top-0 w-full z-50 bg-white border-b transition-all duration-300 ${path.includes('admin') && 'hidden'}`}>
+      <header dir={isRtl ? "rtl" : "ltr"} className={`sticky top-0 w-full z-50 bg-white border-b transition-all duration-300 ${path.includes('admin') && 'hidden'}`}>
 
         {/* Ad Strip */}
         <MovingAd lang={lang} isScrolled={true} isHomePage={false} headerAd={headerAd} />
@@ -136,7 +137,7 @@ export default function Navbar({ lang, dict, categories, products, headerAd }: {
             {/* Inline Search Input */}
             <div ref={searchRef} className="relative flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                 <input
                   ref={inputRef}
                   type="text"
@@ -144,12 +145,12 @@ export default function Navbar({ lang, dict, categories, products, headerAd }: {
                   onChange={e => { setQuery(e.target.value); setSearchOpen(true) }}
                   onFocus={() => setSearchOpen(true)}
                   placeholder={h.search || "Search…"}
-                  className="w-full h-8 pl-8 pr-8 text-sm bg-muted/60 border border-transparent rounded-full focus:outline-none focus:border-border focus:bg-white transition-all placeholder:text-muted-foreground"
+                  className="w-full h-8 px-8 text-sm bg-muted/60 border border-transparent rounded-full focus:outline-none focus:border-border focus:bg-white transition-all placeholder:text-muted-foreground"
                 />
                 {query && (
                   <button
                     onClick={clearSearch}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -169,25 +170,29 @@ export default function Navbar({ lang, dict, categories, products, headerAd }: {
                   )}
                   {!searchLoading && searchResults.length > 0 && (
                     <ul className="py-1">
-                      {searchResults.map(product => (
-                        <li key={product._id}>
-                          <Link
-                            href={`/${lang}/products/${product.slug}`}
-                            onClick={() => { setSearchOpen(false); setQuery("") }}
-                            className="flex items-center gap-3 px-4 py-2.5 hover:bg-accent transition-colors"
-                          >
-                            <img
-                              src={product.image || "/placeholder.png"}
-                              alt={product.name}
-                              className="h-10 w-10 rounded-md object-cover flex-shrink-0"
-                            />
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium line-clamp-1">{product.name}</p>
-                              <p className="text-xs text-muted-foreground line-clamp-1">{product.category?.name}</p>
-                            </div>
-                          </Link>
-                        </li>
-                      ))}
+                      {searchResults.map(product => {
+                        const productName = lang === 'ar' && product.name_ar ? product.name_ar : lang === 'he' && product.name_he ? product.name_he : product.name;
+                        const categoryName = lang === 'ar' && product.category?.name_ar ? product.category.name_ar : lang === 'he' && product.category?.name_he ? product.category.name_he : product.category?.name;
+                        return (
+                          <li key={product._id}>
+                            <Link
+                              href={`/${lang}/products/${product.slug}`}
+                              onClick={() => { setSearchOpen(false); setQuery("") }}
+                              className="flex items-center gap-3 px-4 py-2.5 hover:bg-accent transition-colors"
+                            >
+                              <img
+                                src={product.image || "/placeholder.png"}
+                                alt={productName}
+                                className="h-10 w-10 rounded-md object-cover flex-shrink-0"
+                              />
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium line-clamp-1">{productName}</p>
+                                <p className="text-xs text-muted-foreground line-clamp-1">{categoryName}</p>
+                              </div>
+                            </Link>
+                          </li>
+                        )
+                      })}
                     </ul>
                   )}
                 </div>
@@ -209,6 +214,7 @@ export default function Navbar({ lang, dict, categories, products, headerAd }: {
               lang={lang}
               categories={categories}
               products={products}
+              label={h.search}
             />
           </nav>
 
@@ -252,7 +258,7 @@ export default function Navbar({ lang, dict, categories, products, headerAd }: {
             <Link href={`/${lang}/wishlist`} className="relative hover:opacity-70 transition-opacity">
               <Heart className="h-5 w-5" />
               {wishlistState.items.length > 0 && (
-                <span className="absolute -top-2 -right-2 text-[10px] bg-accent text-foreground font-bold rounded-full h-3.5 w-3.5 flex items-center justify-center leading-none">
+                <span className="absolute -top-2 -end-2 text-[10px] bg-accent text-foreground font-bold rounded-full h-3.5 w-3.5 flex items-center justify-center leading-none">
                   {wishlistState.items.length}
                 </span>
               )}

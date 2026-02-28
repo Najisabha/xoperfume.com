@@ -23,9 +23,7 @@ const orderSchema = new mongoose.Schema({
     selectedVariant: {
       _id: String,
       sku: String,
-      color: String,
-      size: String,
-      caratSize: String,
+      color: { type: mongoose.Schema.Types.Mixed },
       price: Number,
       stock: Number,
       images: [String],

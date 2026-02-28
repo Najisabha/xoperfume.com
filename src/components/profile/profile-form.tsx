@@ -20,9 +20,12 @@ import { Spinner } from "@/components/ui/spinner"
 import { Placeholder } from "@/components/ui/placeholder"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export function ProfileForm() {
+export function ProfileForm({ lang, dict }: { lang: string, dict: any }) {
   const { data: session } = useSession()
   const [isLoading, setIsLoading] = useState(true)
+  const t = dict?.profile || {}
+  const isRtl = lang === 'ar' || lang === 'he'
+
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -41,7 +44,7 @@ export function ProfileForm() {
         const response = await fetch("/api/user/profile")
         if (!response.ok) throw new Error("Failed to fetch profile")
         const data = await response.json()
-        
+
         form.reset({
           name: data.name,
           email: data.email,
@@ -49,8 +52,8 @@ export function ProfileForm() {
         })
       } catch (error) {
         toast({
-          title: "Error",
-          description: "Failed to load profile data",
+          title: dict?.auth?.error || "Error",
+          description: t.error_load || "Failed to load profile data",
           variant: "destructive",
         })
       } finally {
@@ -59,7 +62,7 @@ export function ProfileForm() {
     }
 
     fetchProfile()
-  }, [session?.user, form.reset]) // Add proper dependencies
+  }, [session?.user, form.reset])
 
   async function onSubmit(data: ProfileFormData) {
     try {
@@ -72,13 +75,13 @@ export function ProfileForm() {
       if (!response.ok) throw new Error("Failed to update profile")
 
       toast({
-        title: "Success",
-        description: "Your profile has been updated",
+        title: dict?.auth?.success || "Success",
+        description: t.success_update || "Your profile has been updated",
       })
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update profile",
+        title: dict?.auth?.error || "Error",
+        description: t.error_update || "Failed to update profile",
         variant: "destructive",
       })
     }
@@ -87,15 +90,15 @@ export function ProfileForm() {
   if (session?.user) {
     return (
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
+              <FormItem className={isRtl ? 'text-right' : 'text-left'}>
+                <FormLabel>{dict?.auth?.name || 'Name'}</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} className={isRtl ? 'text-right' : 'text-left'} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -106,10 +109,10 @@ export function ProfileForm() {
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
+              <FormItem className={isRtl ? 'text-right' : 'text-left'}>
+                <FormLabel>{dict?.auth?.email || 'Email'}</FormLabel>
                 <FormControl>
-                  <Input {...field} type="email" />
+                  <Input {...field} type="email" className={isRtl ? 'text-right' : 'text-left'} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,10 +123,10 @@ export function ProfileForm() {
             control={form.control}
             name="phone"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone (optional)</FormLabel>
+              <FormItem className={isRtl ? 'text-right' : 'text-left'}>
+                <FormLabel>{t.phone || 'Phone'} <span className="text-muted-foreground text-xs">({t.optional || 'optional'})</span></FormLabel>
                 <FormControl>
-                  <Input {...field} type="tel" />
+                  <Input {...field} type="tel" className={isRtl ? 'text-right' : 'text-left'} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -138,10 +141,10 @@ export function ProfileForm() {
             {form.formState.isSubmitting ? (
               <div className="flex items-center gap-2">
                 <Spinner size="sm" />
-                <span>Saving...</span>
+                <span>{t.saving || 'Saving...'}</span>
               </div>
             ) : (
-              "Save Changes"
+              t.save_changes || "Save Changes"
             )}
           </Button>
         </form>

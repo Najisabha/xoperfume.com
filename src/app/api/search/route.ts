@@ -35,9 +35,15 @@ export async function GET(req: NextRequest): Promise<NextResponse<SearchResponse
     const searchConditions = searchTerms.map(term => ({
       $or: [
         { name: { $regex: term, $options: 'i' } },
+        { name_ar: { $regex: term, $options: 'i' } },
+        { name_he: { $regex: term, $options: 'i' } },
         { 'variants.sku': { $regex: term, $options: 'i' } },
         { description: { $regex: term, $options: 'i' } },
-        { 'category.name': { $regex: term, $options: 'i' } }
+        { description_ar: { $regex: term, $options: 'i' } },
+        { description_he: { $regex: term, $options: 'i' } },
+        { 'category.name': { $regex: term, $options: 'i' } },
+        { 'category.name_ar': { $regex: term, $options: 'i' } },
+        { 'category.name_he': { $regex: term, $options: 'i' } }
       ]
     }));
 
@@ -66,9 +72,11 @@ export async function GET(req: NextRequest): Promise<NextResponse<SearchResponse
       let score = 0;
       const normalizedName = normalizeText(product.name);
 
-      // Increase score based on term matches in name
+      // Increase score based on term matches in name (all langs)
       searchTerms.forEach(term => {
         if (normalizedName.includes(term)) score += 2;
+        if (product.name_ar && normalizeText(product.name_ar).includes(term)) score += 2;
+        if (product.name_he && normalizeText(product.name_he).includes(term)) score += 2;
       });
 
       // Increase score for in-stock products

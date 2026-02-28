@@ -12,8 +12,13 @@ export async function GET(req: Request, { params }: any) {
     await connectDB()
     const order = await Order.findOne({
       _id: param.id,
-      // userId: session?.user.id 
-    }).populate("products.product")
+    }).populate({
+      path: "products.product",
+      populate: {
+        path: "variants.color",
+        model: "Color"
+      }
+    })
 
     if (!order) {
       return NextResponse.json(
@@ -38,7 +43,7 @@ export async function PATCH(req: Request, { params }: any) {
     if (authError) return authError
 
     const { status } = await req.json()
-    
+
     if (!status) {
       return NextResponse.json(
         { error: "Status is required" },

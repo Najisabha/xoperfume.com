@@ -48,7 +48,14 @@
         "contact_us": "اتصل بنا",
         "follow_us": "تابعنا",
         "follow_us_desc": "تابعنا على إنستغرام للحصول على أحدث التحديثات والمحتوى الحصري والمزيد.",
-        "rights_reserved": "© {year} XO Perfumes. جميع الحقوق محفوظة."
+        "rights_reserved": "© {year} XO Perfumes. جميع الحقوق محفوظة.",
+        "newsletter": "النشرة الإخبارية",
+        "newsletter_desc": "اشترك في النشرة الإخبارية للحصول على أحدث التحديثات والعروض الحصرية.",
+        "email_placeholder": "البريد الإلكتروني",
+        "subscribe": "اشتراك",
+        "subscribing": "جاري الاشتراك...",
+        "subscribe_success": "تم الاشتراك بنجاح!",
+        "subscribe_error": "فشل الاشتراك"
     },
     "wishlist": {
         "title": "قائمة الأمنيات الخاصة بي",
@@ -160,7 +167,7 @@
         "subtotal": "المجموع الفرعي",
         "promo_discount": "تخفيض كود الخصم",
         "total": "الإجمالي",
-        "view_order_status": "عرض حالة الطلב",
+        "view_order_status": "عرض حالة الطلب",
         "continue_shopping": "استمرار التسوق",
         "order": "الطلب",
         "placed_on": "تم الطلب في",
@@ -220,5 +227,25 @@
             "password_min": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
             "passwords_mismatch": "كلمات المرور غير متطابقة"
         }
+    },
+    "profile": {
+        "title": "حسابي",
+        "profile": "الملف الشخصي",
+        "password": "كلمة المرور",
+        "addresses": "العناوين",
+        "orders": "الطلبات",
+        "empty_orders": "لم تقم بإجراء أي طلبات بعد",
+        "start_shopping": "ابدأ التسوق",
+        "save_changes": "حفظ التغييرات",
+        "saving": "جاري الحفظ...",
+        "phone": "رقم الهاتف",
+        "optional": "اختياري",
+        "success_update": "تم تحديث ملفك الشخصي بنجاح",
+        "error_update": "فشل تحديث الملف الشخصي",
+        "new_password": "كلمة مرور جديدة",
+        "confirm_password": "تأكيد كلمة المرور الجديدة",
+        "password_success": "تم تحديث كلمة المرور بنجاح",
+        "password_error": "فشل تحديث كلمة المرور",
+        "view_order": "عرض الطلب"
     }
 }

@@ -20,7 +20,7 @@ export default function HomeCollections({ lang, dict }: { lang: string, dict: an
                 <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 pb-8 -mx-4 px-4 custom-scrollbar">
                     {/* Collection 1 */}
                     <div className="snap-center shrink-0 w-[85vw] sm:w-[50vw] md:w-[400px]">
-                        <Link href={`/${lang}/shop/men-perfume`} className="group block">
+                        <Link href={`/${lang}/shop/men-perfumes`} className="group block">
                             <div className="relative overflow-hidden aspect-[4/5] bg-muted/20">
                                 <img
                                     src="/assets/collection/men-perfume.png"
@@ -39,7 +39,7 @@ export default function HomeCollections({ lang, dict }: { lang: string, dict: an
 
                     {/* Collection 2 */}
                     <div className="snap-center shrink-0 w-[85vw] sm:w-[50vw] md:w-[400px]">
-                        <Link href={`/${lang}/shop/women-perfume`} className="group block">
+                        <Link href={`/${lang}/shop/women-perfumes`} className="group block">
                             <div className="relative overflow-hidden aspect-[4/5] bg-muted/20">
                                 <img
                                     src="/assets/collection/women-perfume.png"
@@ -58,7 +58,7 @@ export default function HomeCollections({ lang, dict }: { lang: string, dict: an
 
                     {/* Collection 3 */}
                     <div className="snap-center shrink-0 w-[85vw] sm:w-[50vw] md:w-[400px]">
-                        <Link href={`/${lang}/shop/makeup-beauty`} className="group block">
+                        <Link href={`/${lang}/shop/makeup-and-beauty`} className="group block">
                             <div className="relative overflow-hidden aspect-[4/5] bg-muted/20">
                                 <img
                                     src="/assets/collection/makeup-beauty.png"

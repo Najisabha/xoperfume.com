@@ -89,8 +89,8 @@ export function CategoryFilter({ dict, lang }: { dict?: any, lang: string }) {
               checked={filters.categories.includes(category.slug)}
               onCheckedChange={() => handleCategoryChange(category.slug)}
             />
-            <Label htmlFor={category.slug}>
-              {lang === 'ar' ? category.name_ar : lang === 'he' ? category.name_he : category.name}
+            <Label htmlFor={category.slug} className="ps-2">
+              {(lang === 'ar' ? category.name_ar : lang === 'he' ? category.name_he : category.name) || category.name}
             </Label>
           </div>
         ))}

@@ -12,10 +12,11 @@ import { Placeholder } from "@/components/ui/placeholder"
 import { Address } from "@/types"
 
 
-export function AddressBook() {
+export function AddressBook({ lang, dict }: { lang: string, dict: any }) {
   const [addresses, setAddresses] = useState<Address[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isOpen, setIsOpen] = useState(false)
+  const isRtl = lang === 'ar' || lang === 'he'
 
   useEffect(() => {
     async function fetchAddresses() {
@@ -26,7 +27,7 @@ export function AddressBook() {
         setAddresses(data)
       } catch (error) {
         toast({
-          title: "Error",
+          title: dict?.auth?.error || "Error",
           description: "Failed to load addresses",
           variant: "destructive",
         })
@@ -52,12 +53,12 @@ export function AddressBook() {
       setAddresses(data)
       setIsOpen(false)
       toast({
-        title: "Address added",
+        title: dict?.auth?.success || "Address added",
         description: "Your address has been added successfully.",
       })
     } catch (error) {
       toast({
-        title: "Error",
+        title: dict?.auth?.error || "Error",
         description: "Failed to add address",
         variant: "destructive",
       })
@@ -74,12 +75,12 @@ export function AddressBook() {
 
       setAddresses(addresses.filter(address => address._id !== id))
       toast({
-        title: "Address deleted",
+        title: dict?.auth?.success || "Address deleted",
         description: "Your address has been deleted successfully.",
       })
     } catch (error) {
       toast({
-        title: "Error",
+        title: dict?.auth?.error || "Error",
         description: "Failed to delete address",
         variant: "destructive",
       })
@@ -104,16 +105,16 @@ export function AddressBook() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" dir={isRtl ? 'rtl' : 'ltr'}>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           <Button className="w-full">
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Address
+            <Plus className={`${isRtl ? 'ml-2' : 'mr-2'} h-4 w-4`} />
+            {dict?.checkout?.new_address || 'Add New Address'}
           </Button>
         </DialogTrigger>
         <DialogContent>
-          <AddressForm onSubmit={onAddAddress} />
+          <AddressForm onSubmit={onAddAddress} lang={lang} dict={dict} />
         </DialogContent>
       </Dialog>
 
@@ -123,6 +124,8 @@ export function AddressBook() {
             key={address._id}
             address={address}
             onDelete={() => onDeleteAddress(address._id as string)}
+            lang={lang}
+            dict={dict}
           />
         ))}
       </div>

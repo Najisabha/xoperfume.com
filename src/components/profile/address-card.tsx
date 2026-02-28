@@ -6,15 +6,18 @@ import { Trash2 } from "lucide-react"
 interface AddressCardProps {
   address: Address
   onDelete: () => void
+  lang: string
+  dict: any
 }
 
-export function AddressCard({ address, onDelete }: AddressCardProps) {
+export function AddressCard({ address, onDelete, lang, dict }: AddressCardProps) {
+  const isRtl = lang === 'ar' || lang === 'he'
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+    <Card dir={isRtl ? 'rtl' : 'ltr'}>
+      <CardHeader className={`flex flex-row items-center justify-between pb-2 ${isRtl ? 'flex-row-reverse' : ''}`}>
         <div className="flex items-center space-x-2">
           <span className="text-sm font-medium">
-            {address.isDefault && "Default"}
+            {address.isDefault && (dict?.checkout?.default_address || "Default")}
           </span>
         </div>
         <Button
@@ -26,7 +29,7 @@ export function AddressCard({ address, onDelete }: AddressCardProps) {
           <Trash2 className="h-4 w-4" />
         </Button>
       </CardHeader>
-      <CardContent>
+      <CardContent className={isRtl ? 'text-right' : 'text-left'}>
         <div className="space-y-1 text-sm">
           <p className="font-medium">{address.firstName} {address.lastName}</p>
           <p>{address.address}</p>

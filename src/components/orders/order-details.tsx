@@ -61,9 +61,17 @@ export function OrderDetails({ order, lang, dict }: OrderDetailsProps) {
                       </p>
                       {item.selectedVariant.color && (
                         <p className="mt-1 text-sm text-muted-foreground">
-                          {dict?.product?.colour || 'Colour'}: {typeof item.selectedVariant.color === 'object'
-                            ? (lang === 'ar' ? (item.selectedVariant.color as any).name_ar : lang === 'he' ? (item.selectedVariant.color as any).name_he : (item.selectedVariant.color as any).name) || (item.selectedVariant.color as any).name
-                            : item.selectedVariant.color}
+                          {dict?.product?.colour || 'Colour'}: {(() => {
+                            const variantInProduct = item.product.variants?.find((v: any) => v._id?.toString() === item.selectedVariant._id?.toString());
+                            const colorObj = (typeof item.selectedVariant.color === 'object')
+                              ? item.selectedVariant.color
+                              : variantInProduct?.color;
+
+                            if (!colorObj || typeof colorObj === 'string') return item.selectedVariant.color;
+
+                            const c = colorObj as any;
+                            return (lang === 'ar' ? c.name_ar : lang === 'he' ? c.name_he : c.name) || c.name;
+                          })()}
                         </p>
                       )}
                     </div>

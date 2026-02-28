@@ -24,21 +24,29 @@ export async function GET(req: NextRequest) {
     await Product.find({})
 
     let orders = []
-    if (session.user.role !== 'admin') {
+    if (session.user.role !== 'admin' || profile) {
+      // If NOT admin, or if we explicitly requested profile history (even as admin)
       orders = await Order.find({ initiatorEmail: session.user.email })
         .sort({ createdAt: -1 })
         .populate({
           path: 'products.product',
           model: 'Product',
-          select: 'name slug variants'
+          populate: {
+            path: 'variants.color',
+            model: 'Color'
+          }
         })
-    } else if (!profile) {
+    } else {
+      // Admin global view (without profile filter)
       orders = await Order.find()
         .sort({ createdAt: -1 })
         .populate({
           path: 'products.product',
           model: 'Product',
-          select: 'name slug variants'
+          populate: {
+            path: 'variants.color',
+            model: 'Color'
+          }
         })
     }
     return NextResponse.json(orders, { status: 200 })
@@ -67,8 +75,6 @@ export async function POST(req: Request) {
           _id: item.selectedVariant._id,
           sku: item.selectedVariant.sku,
           color: item.selectedVariant.color,
-          size: item.selectedVariant.size,
-          caratSize: item.selectedVariant.caratSize,
           price: item.selectedVariant.price,
           stock: item.selectedVariant.stock,
           images: item.selectedVariant.images,

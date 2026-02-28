@@ -48,7 +48,14 @@
         "contact_us": "צור קשר",
         "follow_us": "עקבו אחרינו",
         "follow_us_desc": "עקבו אחרינו באינסטגרם לעדכונים האחרונים, תוכן בלעדי ועוד.",
-        "rights_reserved": "© {year} XO Perfumes. כל הזכויות שמורות."
+        "rights_reserved": "© {year} XO Perfumes. כל הזכויות שמורות.",
+        "newsletter": "ניוזלטר",
+        "newsletter_desc": "הירשמו לניוזלטר שלנו לקבלת עדכונים אחרונים והצעות בלעדיות.",
+        "email_placeholder": "כתובת הדוא\"ל שלך",
+        "subscribe": "הרשמה",
+        "subscribing": "נרשם...",
+        "subscribe_success": "נרשמת בהצלחה!",
+        "subscribe_error": "ההרשמה נכשלה"
     },
     "wishlist": {
         "title": "רשימת המשאלות שלי",
@@ -220,5 +227,25 @@
             "password_min": "הסיסמה חייבת להכיל לפחות 6 תווים",
             "passwords_mismatch": "הסיסמאות אינן תואמות"
         }
+    },
+    "profile": {
+        "title": "החשבון שלי",
+        "profile": "פרופיל",
+        "password": "סיסמה",
+        "addresses": "כתובות",
+        "orders": "הזמנות",
+        "empty_orders": "עדיין לא ביצעת הזמנות",
+        "start_shopping": "התחל לקנות",
+        "save_changes": "שמור שינויים",
+        "saving": "שומר...",
+        "phone": "טלפון",
+        "optional": "אופציונלי",
+        "success_update": "הפרופיל שלך עודכן",
+        "error_update": "עדכון הפרופיל נכשל",
+        "new_password": "סיסמה חדשה",
+        "confirm_password": "אישור סיסמה חדשה",
+        "password_success": "הסיסמה עודכנה בהצלחה",
+        "password_error": "עדכון הסיסמה נכשל",
+        "view_order": "הצג הזמנה"
     }
 }

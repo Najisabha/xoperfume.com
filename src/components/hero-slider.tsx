@@ -19,19 +19,19 @@ const HeroSlider = ({ lang, dict }: { lang: string; dict: any }) => {
       type: "image" as const,
       src: "/assets/banners/men-perfume.png",
       header: dict.men,
-      link: "/shop/men-perfume",
+      link: "/shop/men-perfumes",
     },
     {
       type: "image",
       src: "/assets/banners/women-perfume.png",
       header: dict.women,
-      link: "/shop/women-perfume",
+      link: "/shop/women-perfumes",
     },
     {
       type: "image",
       src: "/assets/banners/makeup-beauty.png",
       header: dict.beauty,
-      link: "/shop/makeup-beauty",
+      link: "/shop/makeup-and-beauty",
     },
   ], [dict]);
 

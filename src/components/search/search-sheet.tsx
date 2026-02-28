@@ -147,39 +147,43 @@ export function SearchSheet({
                     className="mx-auto opacity-50"
                   />
                   <p className="mt-4 text-muted-foreground">
-                    No products found for &quot;{query}&quot;
+                    {lang === 'ar' ? `لم يتم العثور على منتجات لـ "${query}"` : lang === 'he' ? `לא נמצאו מוצרים עבור "${query}"` : `No products found for "${query}"`}
                   </p>
                 </div>
               )}
 
               {!loading && results.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {results.map((product, index) => (
-                    <Link
-                      key={product._id}
-                      href={`/${lang}/products/${product.slug}`}
-                      className={cn(
-                        "flex items-center p-3 rounded-lg transition-colors",
-                        "hover:bg-accent",
-                        selectedIndex === index && "bg-accent"
-                      )}
-                      onClick={() => setOpen(false)}
-                    >
-                      <div className="relative h-16 w-16 rounded-md overflow-hidden">
-                        <img
-                          src={product.image || '/placeholder.png'}
-                          alt={product.name}
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="ml-4 flex-1">
-                        <h3 className="font-medium line-clamp-1">{product.name}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-1">
-                          {product.category.name}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
+                  {results.map((product, index) => {
+                    const productName = lang === 'ar' && product.name_ar ? product.name_ar : lang === 'he' && product.name_he ? product.name_he : product.name;
+                    const categoryName = lang === 'ar' && product.category?.name_ar ? product.category.name_ar : lang === 'he' && product.category?.name_he ? product.category.name_he : product.category?.name;
+                    return (
+                      <Link
+                        key={product._id}
+                        href={`/${lang}/products/${product.slug}`}
+                        className={cn(
+                          "flex items-center p-3 rounded-lg transition-colors",
+                          "hover:bg-accent",
+                          selectedIndex === index && "bg-accent"
+                        )}
+                        onClick={() => setOpen(false)}
+                      >
+                        <div className="relative h-16 w-16 rounded-md overflow-hidden flex-shrink-0">
+                          <img
+                            src={product.image || '/placeholder.png'}
+                            alt={productName}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                        <div className="ml-4 rtl:mr-4 rtl:ml-0 flex-1">
+                          <h3 className="font-medium line-clamp-1">{productName}</h3>
+                          <p className="text-sm text-muted-foreground line-clamp-1">
+                            {categoryName}
+                          </p>
+                        </div>
+                      </Link>
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -190,49 +194,60 @@ export function SearchSheet({
             <div className="mt-4 space-y-12">
               {/* Categories section */}
               <div>
-                <h3 className="text-lg font-medium mb-6">Popular Categories</h3>
+                <h3 className="text-lg font-medium mb-6">
+                  {lang === 'ar' ? 'الفئات الشائعة' : lang === 'he' ? 'קטגוריות פופולריות' : 'Popular Categories'}
+                </h3>
                 <div className="flex flex-wrap gap-3">
-                  {categories.slice(0, 6).map((category) => (
-                    <Link
-                      key={category._id}
-                      href={`/${lang}/shop/${category.slug}`}
-                      className="px-4 py-2 rounded-full bg-accent hover:bg-accent/80 text-sm"
-                      onClick={() => setOpen(false)}
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
+                  {categories.slice(0, 6).map((category) => {
+                    const catName = lang === 'ar' && category.name_ar ? category.name_ar : lang === 'he' && category.name_he ? category.name_he : category.name;
+                    return (
+                      <Link
+                        key={category._id}
+                        href={`/${lang}/shop/${category.slug}`}
+                        className="px-4 py-2 rounded-full bg-accent hover:bg-accent/80 text-sm"
+                        onClick={() => setOpen(false)}
+                      >
+                        {catName}
+                      </Link>
+                    )
+                  })}
                 </div>
               </div>
 
               {/* Popular Products section */}
               <div>
-                <h3 className="text-lg font-medium mb-6">Popular Products</h3>
+                <h3 className="text-lg font-medium mb-6">
+                  {lang === 'ar' ? 'المنتجات الشائعة' : lang === 'he' ? 'מוצרים פופולריים' : 'Popular Products'}
+                </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-                  {products.slice(0, 4).map((product) => (
-                    <Link
-                      key={product._id}
-                      href={`/${lang}/products/${product.slug}`}
-                      onClick={() => setOpen(false)}
-                      className="group"
-                    >
-                      <div className="relative aspect-square mb-3">
-                        <img
-                          src={product.variants[0]?.images[0] || '/placeholder.png'}
-                          alt={product.name}
-                          className="object-cover rounded-lg group-hover:opacity-90 transition-opacity"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <h3 className="font-medium text-sm line-clamp-1 group-hover:font-black">
-                          {product.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {product.category.name}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
+                  {products.slice(0, 4).map((product) => {
+                    const prodName = lang === 'ar' && product.name_ar ? product.name_ar : lang === 'he' && product.name_he ? product.name_he : product.name;
+                    const catName = lang === 'ar' && product.category?.name_ar ? product.category.name_ar : lang === 'he' && product.category?.name_he ? product.category.name_he : product.category?.name;
+                    return (
+                      <Link
+                        key={product._id}
+                        href={`/${lang}/products/${product.slug}`}
+                        onClick={() => setOpen(false)}
+                        className="group"
+                      >
+                        <div className="relative aspect-square mb-3">
+                          <img
+                            src={product.variants[0]?.images[0] || '/placeholder.png'}
+                            alt={prodName}
+                            className="object-cover rounded-lg group-hover:opacity-90 transition-opacity w-full h-full"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <h3 className="font-medium text-sm line-clamp-1 group-hover:font-black">
+                            {prodName}
+                          </h3>
+                          <p className="text-sm text-muted-foreground line-clamp-1">
+                            {catName}
+                          </p>
+                        </div>
+                      </Link>
+                    )
+                  })}
                 </div>
               </div>
             </div>
