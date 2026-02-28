@@ -27,7 +27,7 @@ export function ContactSheet({ icon, label, dict }: { icon?: boolean, label?: st
       window.open('https://wa.me/91111111111', '_blank', 'noopener,noreferrer')
       setOpen(false)
     } else if (action === 'email') {
-      window.open('mailto:info@xoperfumes.com', '_blank', 'noopener,noreferrer')
+      window.open('mailto:info@xo-perfumes.com', '_blank', 'noopener,noreferrer')
       setOpen(false)
     }
   }
@@ -86,7 +86,7 @@ export function ContactSheet({ icon, label, dict }: { icon?: boolean, label?: st
                 <div className="text-left">
                   <div className="font-semibold">{c.email_us}</div>
                   <div className="text-sm text-muted-foreground">
-                    info@xoperfumes.com
+                    info@xo-perfumes.com
                   </div>
                 </div>
               </Button>

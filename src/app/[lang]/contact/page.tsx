@@ -51,10 +51,10 @@ export default async function ContactUsPage({ params }: any) {
               <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-primary" />
                 <Link
-                  href="mailto:info@xoperfumes.com"
+                  href="mailto:info@xo-perfumes.com"
                   className="text-lg hover:underline"
                 >
-                  info@xoperfumes.com
+                  info@xo-perfumes.com
                 </Link>
               </div>
 
