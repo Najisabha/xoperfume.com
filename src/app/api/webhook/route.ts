@@ -4,7 +4,7 @@ import Stripe from 'stripe'
 import { Order } from '@/lib/models/order'
 import connectDB from '@/lib/db'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key', {
   apiVersion: "2025-02-24.acacia"
 })
 

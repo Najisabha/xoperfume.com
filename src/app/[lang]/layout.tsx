@@ -58,6 +58,11 @@ export async function generateMetadata({ params }: { params: any }) {
     description: getDescription(lang),
     keywords: getKeywords(lang),
     metadataBase: process.env.NEXT_PUBLIC_SITE_URL,
+    icons: {
+      icon: '/assets/xo-perfumes-favicon.png',
+      shortcut: '/assets/xo-perfumes-favicon.png',
+      apple: '/assets/xo-perfumes-favicon.png',
+    },
     openGraph: {
       type: "website",
       site_name: "XO Perfumes",

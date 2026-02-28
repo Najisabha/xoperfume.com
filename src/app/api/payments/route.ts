@@ -3,7 +3,7 @@ import Stripe from "stripe"
 import { getServerSession } from "next-auth"
 import { authConfig } from "@/lib/auth.config"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key', {
   apiVersion: "2025-02-24.acacia"
 })
 
