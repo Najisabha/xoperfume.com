@@ -1,0 +1,18 @@
+{
+    "home": {
+        "title": "Elevate Your Senses",
+        "description": "Discover a curated collection of luxury fragrances and premium beauty essentials for a timeless aura.",
+        "categories": {
+            "men_perfume": "Men's Perfumes",
+            "women_perfume": "Women's Perfumes",
+            "makeup_beauty": "Makeup & Beauty"
+        },
+        "hero": {
+            "men": "Bold & Sophisticated Fragrances",
+            "women": "Graceful & Elegant Scents",
+            "beauty": "Radiant Beauty Essentials",
+            "explore": "Explore Our Collections",
+            "explore_desc": "From signature scents to radiant beauty essentials, discover the essence of luxury."
+        }
+    }
+}
