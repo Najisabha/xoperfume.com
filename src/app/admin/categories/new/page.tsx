@@ -15,6 +15,8 @@ export default function AddCategoryPage() {
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
+    name_ar: "",
+    name_he: "",
     slug: "",
     description: "",
     parentId: "none",
@@ -99,7 +101,7 @@ export default function AddCategoryPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Category Name</Label>
+              <Label htmlFor="name">Category Name (English)</Label>
               <Input
                 id="name"
                 name="name"
@@ -107,6 +109,30 @@ export default function AddCategoryPage() {
                 onChange={handleChange}
                 required
               />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name_ar">Arabic Translation</Label>
+                <Input
+                  id="name_ar"
+                  name="name_ar"
+                  value={formData.name_ar}
+                  onChange={handleChange}
+                  dir="rtl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="name_he">Hebrew Translation</Label>
+                <Input
+                  id="name_he"
+                  name="name_he"
+                  value={formData.name_he}
+                  onChange={handleChange}
+                  dir="rtl"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">

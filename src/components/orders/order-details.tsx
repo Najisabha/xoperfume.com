@@ -57,19 +57,11 @@ export function OrderDetails({ order }: OrderDetailsProps) {
                     <p className="mt-1 text-sm text-muted-foreground">
                       {formatPrice(item.selectedVariant.price)}
                     </p>
-                    {item.selectedVariant.size && (
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Gold Colour: {item.selectedVariant.size}
-                      </p>
-                    )}
                     {item.selectedVariant.color && (
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Enamel Colour: {item.selectedVariant.color}
-                      </p>
-                    )}
-                    {item.selectedVariant.caratSize && (
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Stones: {item.selectedVariant.caratSize}
+                        Colour: {typeof item.selectedVariant.color === 'object'
+                          ? `${(item.selectedVariant.color as any).name} (${(item.selectedVariant.color as any).hex})`
+                          : item.selectedVariant.color}
                       </p>
                     )}
                   </div>

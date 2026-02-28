@@ -18,6 +18,8 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
+    name_ar: "",
+    name_he: "",
     slug: "",
     description: "",
     imageUrl: ""
@@ -33,6 +35,8 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
           const category: Category = await response.json()
           setFormData({
             name: category.name,
+            name_ar: category.name_ar || "",
+            name_he: category.name_he || "",
             slug: category.slug,
             description: category.description || "",
             imageUrl: category.imageUrl || ""
@@ -70,7 +74,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
       })
 
       if (!response.ok) throw new Error("Failed to update category")
-      
+
       toast({
         title: "Success",
         description: "Category updated successfully",
@@ -104,7 +108,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Category Name</Label>
+              <Label htmlFor="name">Category Name (English)</Label>
               <Input
                 id="name"
                 name="name"
@@ -113,7 +117,31 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
                 required
               />
             </div>
- 
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name_ar">Arabic Translation</Label>
+                <Input
+                  id="name_ar"
+                  name="name_ar"
+                  value={formData.name_ar}
+                  onChange={handleChange}
+                  dir="rtl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="name_he">Hebrew Translation</Label>
+                <Input
+                  id="name_he"
+                  name="name_he"
+                  value={formData.name_he}
+                  onChange={handleChange}
+                  dir="rtl"
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="slug">Slug</Label>
               <div className="flex gap-2">
@@ -124,9 +152,9 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
                   onChange={handleChange}
                   required
                 />
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={generateSlug}
                   title="Generate slug from name"
                 >
@@ -157,9 +185,9 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
               />
               {formData.imageUrl && (
                 <div className="mt-2">
-                  <img 
-                    src={formData.imageUrl} 
-                    alt="Preview" 
+                  <img
+                    src={formData.imageUrl}
+                    alt="Preview"
                     className="w-32 h-32 object-cover rounded-md"
                     onError={(e) => e.currentTarget.src = '/placeholder.jpg'}
                   />

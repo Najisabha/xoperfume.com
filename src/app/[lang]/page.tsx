@@ -9,72 +9,14 @@ export default async function Home({ params }: { params: any }) {
 
   return (
     <>
-      <div className="min-h-screen overflow-y-auto pt-32">
-        {/* Hero Section with snap */}
-        <section className="relative -mt-32 h-[100vh] snap-start snap-always">
+      <div className="min-h-screen w-full">
+        {/* Hero Section */}
+        <section className="relative w-full">
           <HeroSlider lang={lang} dict={dict.home.hero} />
         </section>
 
         {/* Collections Preview */}
-        <section className="relative min-h-screen bg-background py-16 md:py-20 overflow-hidden" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-          {/* Decorative Patterns */}
-          {/* left */}
-          <div className="absolute left-[-0px] top-[20%] w-[200px] h-[200px] opacity-90 rotate-[-15deg]">
-            <img
-              src="/assets/drawings/ai20.svg"
-              alt="Decorative pattern 1"
-              width={200}
-              height={200}
-              className="object-contain"
-            />
-          </div>
-          <div className="absolute bottom-[-0px] left-[28%] w-[200px] h-[200px] opacity-90 rotate-[5deg]">
-            <img
-              src="/assets/drawings/ai10.svg"
-              alt="Decorative pattern 3"
-              width={200}
-              height={200}
-              className="object-contain"
-            />
-          </div>
-          <div className="absolute bottom-[-0px] left-[2%] w-[200px] h-[200px] opacity-90 rotate-[5deg]">
-            <img
-              src="/assets/drawings/ai3.svg"
-              alt="Decorative pattern 3"
-              width={200}
-              height={200}
-              className="object-contain"
-            />
-          </div>
-
-          {/* right */}
-          <div className="absolute right-[-4px] top-[17%] w-[250px] h-[250px] opacity-90 rotate-[10deg]">
-            <img
-              src="/assets/drawings/ai18.svg"
-              alt="Decorative pattern 2"
-              width={250}
-              height={250}
-              className="object-contain"
-            />
-          </div>
-          <div className="absolute bottom-[30px] left-[58%] w-[180px] h-[180px] opacity-90 rotate-[5deg]">
-            <img
-              src="/assets/drawings/ai7.svg"
-              alt="Decorative pattern 3"
-              width={180}
-              height={180}
-              className="object-contain"
-            />
-          </div>
-          <div className="absolute bottom-[-0px] right-[3%] w-[180px] h-[180px] opacity-90 rotate-[5deg]">
-            <img
-              src="/assets/drawings/ai13.svg"
-              alt="Decorative pattern 3"
-              width={180}
-              height={180}
-              className="object-contain"
-            />
-          </div>
+        <section className="relative min-h-screen bg-background py-16 md:py-20 overflow-hidden" dir={(lang === 'ar' || lang === 'he') ? 'rtl' : 'ltr'}>
 
           <div className="container relative z-10 mx-auto px-4 pt-2">
             <div className="text-center md:mb-24">
@@ -89,34 +31,34 @@ export default async function Home({ params }: { params: any }) {
             <div className="flex mx-auto flex-col md:flex-row justify-center gap-4 md:gap-8">
               {/* Collection 1 */}
               <div className="text-center">
-                <Link href={`/${lang}/shop/bracelets`}
+                <Link href={`/${lang}/shop/men-perfume`}
                   className="group">
                   <img
-                    src="/assets/collection/Bracelet Layout 2.png"
-                    alt="Collection 1"
+                    src="/assets/collection/men-perfume.png"
+                    alt="Men Collection"
                     width={450}
                     height={450}
                     className="mx-auto aspect-square object-cover hover:scale-105 transition-all"
                   />
                   <h3 className="mt-4 text-xl font-light tracking-wide group-hover:font-medium transition-all">
-                    {dict.home.categories.bracelets}
+                    {dict.home.categories.men_perfume}
                   </h3>
                 </Link>
               </div>
 
               {/* Collection 2 */}
               <div className="text-center">
-                <Link href={`/${lang}/shop/earrings`}
+                <Link href={`/${lang}/shop/women-perfume`}
                   className="group">
                   <img
-                    src="/assets/collection/Earring Layout 2.png"
-                    alt="Collection 2"
+                    src="/assets/collection/women-perfume.png"
+                    alt="Women Collection"
                     width={450}
                     height={450}
                     className="mx-auto aspect-square object-cover hover:scale-105 transition-all"
                   />
                   <h3 className="mt-4 text-xl font-light tracking-wide group-hover:font-medium transition-all">
-                    {dict.home.categories.earrings}
+                    {dict.home.categories.women_perfume}
                   </h3>
                 </Link>
               </div>
@@ -124,17 +66,17 @@ export default async function Home({ params }: { params: any }) {
               {/* Collection 3 */}
               <div className="text-center">
                 <Link
-                  href={`/${lang}/shop/necklaces`}
+                  href={`/${lang}/shop/makeup-beauty`}
                   className="group">
                   <img
-                    src="/assets/collection/Necklace Layout 2.png"
-                    alt="Collection 3"
+                    src="/assets/collection/makeup-beauty.png"
+                    alt="Beauty Collection"
                     width={450}
                     height={450}
                     className=" mx-auto object-cover aspect-square hover:scale-105 transition-all"
                   />
                   <h3 className="mt-4 text-xl font-light tracking-wide group-hover:font-medium transition-all">
-                    {dict.home.categories.necklaces}
+                    {dict.home.categories.makeup_beauty}
                   </h3>
                 </Link>
               </div>

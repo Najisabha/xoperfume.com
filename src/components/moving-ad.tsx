@@ -1,16 +1,18 @@
 "use client"
 
 import Link from "next/link"
-import CustomText from "./custom-text"
-import Image from "next/image"
 
 interface MovingAdProps {
   isScrolled: boolean
   isHomePage: boolean
   lang: string
+  headerAd: string
 }
 
-export function MovingAd({ isScrolled, isHomePage, lang }: MovingAdProps) {
+export function MovingAd({ isScrolled, isHomePage, lang, headerAd }: MovingAdProps) {
+  // Use headerAd text, fallback to default English if not provided
+  const text = headerAd || "A gift today, an heirloom tomorrow"
+
   return (
     <div
       className={`
@@ -18,7 +20,7 @@ export function MovingAd({ isScrolled, isHomePage, lang }: MovingAdProps) {
         py-2.5
         overflow-hidden
         relative
-        ${isScrolled ? 'bg-white' : 'bg-transparent'}
+        ${isScrolled ? 'bg-muted' : 'bg-transparent'}
         ${isHomePage && !isScrolled ? 'text-background' : 'text-foreground'}
       `}
     >
@@ -45,18 +47,9 @@ export function MovingAd({ isScrolled, isHomePage, lang }: MovingAdProps) {
               px-4
             "
         >
-          <img
-            src={`/assets/header-sentence2.svg`}
-            width={650}
-            height={80}
-            alt="a gift today, an heirloom tomorrow"
-            className="-mb-2 z-50"
-          />
-          {/* <CustomText
-              text="  A gift today, an heirloom tomorrow  "
-              letterSpacing={0.05}
-              size={20}
-            /> */}
+          <span className="text-lg font-semibold tracking-wider uppercase">
+            {text}
+          </span>
         </Link>
       </div>
     </div>

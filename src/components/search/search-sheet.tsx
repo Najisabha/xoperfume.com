@@ -12,14 +12,16 @@ import { Product } from "@/types"
 import { SearchResponse } from "@/types/search"
 import { useRouter } from "next/navigation"
 
-export function SearchSheet({ 
+export function SearchSheet({
   categories,
   products,
-  lang
-}: { 
+  lang,
+  label
+}: {
   categories: any[]
   products: any[]
   lang: string
+  label?: string
 }) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
@@ -36,14 +38,14 @@ export function SearchSheet({
         setResults([])
         return
       }
-      
+
       setLoading(true)
       setError("")
-      
+
       try {
         const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`)
         const data: SearchResponse = await response.json()
-        
+
         if (!response.ok) {
           throw new Error(data.error || 'Failed to search products')
         }
@@ -67,7 +69,7 @@ export function SearchSheet({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
       e.preventDefault()
-      setSelectedIndex(prev => 
+      setSelectedIndex(prev =>
         prev < results.length - 1 ? prev + 1 : prev
       )
     } else if (e.key === "ArrowUp") {
@@ -94,11 +96,11 @@ export function SearchSheet({
       <SheetTrigger asChild>
         <button className="flex items-center gap-2 hover:opacity-70 transition-opacity">
           <Search className="h-5 w-5 md:hidden" />
-          <span className="hidden sm:inline">Search</span>
+          <span className="hidden sm:inline">{label || 'Search'}</span>
         </button>
       </SheetTrigger>
-      <SheetContent 
-        side="top" 
+      <SheetContent
+        side="top"
         className="w-full h-full sm:h-[85vh] pt-12 px-4 sm:px-8 bg-white"
       >
         <div className="max-w-4xl mx-auto">
@@ -108,7 +110,7 @@ export function SearchSheet({
               <Input
                 ref={inputRef}
                 type="text"
-                placeholder="Search for jewelry..."
+                placeholder={label || "Search for products..."}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -116,7 +118,7 @@ export function SearchSheet({
                 autoFocus
               />
               {query && (
-                <button 
+                <button
                   onClick={clearSearch}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2"
                 >

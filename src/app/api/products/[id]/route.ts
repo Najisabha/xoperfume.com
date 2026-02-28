@@ -14,7 +14,7 @@ interface RouteParams {
 function cleanDocumentForUpdate(data: any) {
   const cleaned = { ...data }
   delete cleaned._id
-  
+
   // Clean variant IDs if variants exist
   if (cleaned.variants) {
     cleaned.variants = cleaned.variants.map((variant: any) => {
@@ -23,7 +23,7 @@ function cleanDocumentForUpdate(data: any) {
       return cleanedVariant
     })
   }
-  
+
   return cleaned
 }
 
@@ -32,7 +32,9 @@ export async function GET(req: Request, { params }: RouteParams) {
   try {
     await connectDB()
     await Category.find({})
-    const product = await Product.findById(param.id).populate('category')
+    const product = await Product.findById(param.id)
+      .populate('category')
+      .populate('variants.color')
     if (!product) {
       return NextResponse.json(
         { error: "Product not found" },
@@ -58,16 +60,16 @@ export async function PATCH(req: Request, { params }: RouteParams) {
 
     await connectDB()
     const rawData = await req.json()
-    
+
     // Clean the data before update
     const cleanedData = cleanDocumentForUpdate(rawData)
-    
+
     await Category.find({})
     const product = await Product.findByIdAndUpdate(
       param.id,
       { $set: cleanedData },
       { new: true }
-    ).populate('category')
+    ).populate('category').populate('variants.color')
 
     if (!product) {
       return NextResponse.json(

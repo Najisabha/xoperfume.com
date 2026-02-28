@@ -7,7 +7,10 @@ export async function GET() {
   try {
     await connectDB()
     await Category.find({})
-    const products = await Product.find().populate('category').exec()
+    const products = await Product.find()
+      .populate('category')
+      .populate('variants.color')
+      .exec()
     return NextResponse.json(products)
   } catch (error) {
     console.error(error)
@@ -21,9 +24,9 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     await connectDB()
-    
+
     const data = await req.json()
-    
+
     // Validate required fields with specific messages
     if (!data.name) {
       return NextResponse.json(
@@ -65,13 +68,11 @@ export async function POST(req: Request) {
       image: data.image,
       slug: data.slug,
       category: data.category,
+      countries: data.countries || ['uae'],
       variants: data.variants.map((variant: any) => ({
         sku: variant.sku,
-        color: variant.color,
-        size: variant.size,
-        caratSize: variant.caratSize,
+        color: variant.color || null,
         price: Number(variant.price),
-        discrption: variant.description || '',
         stock: Number(variant.stock),
         images: variant.images,
         stockStatus: variant.stockStatus,
@@ -82,7 +83,7 @@ export async function POST(req: Request) {
     return NextResponse.json(product, { status: 201 })
   } catch (error: any) {
     console.error("Product creation error:", error)
-    
+
     // Handle mongoose duplicate key error
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0]

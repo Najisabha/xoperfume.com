@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button"
 import { ContactForm } from "@/components/contact-form"
 import { Mail, Phone, MessageSquare, Instagram } from "lucide-react"
 
-export function ContactSheet({ icon }: { icon?: boolean }) {
+export function ContactSheet({ icon, label }: { icon?: boolean, label?: string }) {
   const [open, setOpen] = useState(false)
   const [showForm, setShowForm] = useState(false)
 
@@ -36,7 +36,7 @@ export function ContactSheet({ icon }: { icon?: boolean }) {
           {icon ? (
             <Mail className="h-5 w-5 hover:cursor-pointer" />
           ) : (
-            <span className="hover:cursor-pointer">Contact</span>
+            <span className="hover:cursor-pointer">{label || 'Contact'}</span>
           )}
         </SheetTrigger>
         <SheetContent className="flex w-[90%] flex-col sm:max-w-lg bg-white">

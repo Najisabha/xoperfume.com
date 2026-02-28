@@ -21,41 +21,14 @@ import {
 import { ShopSheet } from "./shop/shop-sheet"
 import { MovingAd } from "./moving-ad"
 
-export default function Navbar({ lang }: { lang: string }) {
+export default function Navbar({ lang, dict, categories, products, headerAd }: { lang: string, dict: any, categories: any[], products: any[], headerAd: string }) {
   const { data: session } = useSession()
   const path = usePathname()
   const { state: wishlistState } = useWishlist()
   const [scrolled, setScrolled] = useState(false)
-  const [categories, setCategories] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [products, setProducts] = useState<any[]>([])
-  const [productsLoading, setProductsLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   const isHomePage = path.endsWith(`/${lang}`)
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [categoriesRes, productsRes] = await Promise.all([
-          fetch('/api/categories'),
-          fetch('/api/products')
-        ])
-        const [categoriesData, productsData] = await Promise.all([
-          categoriesRes.json(),
-          productsRes.json()
-        ])
-        setCategories(categoriesData)
-        setProducts(productsData ?? [])
-      } catch (error) {
-        console.error('Failed to fetch data:', error)
-      } finally {
-        setLoading(false)
-        setProductsLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,19 +39,34 @@ export default function Navbar({ lang }: { lang: string }) {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  const handleLanguageChange = (newLang: string) => {
+    const segments = path.split('/')
+    segments[1] = newLang
+    window.location.href = segments.join('/')
+  }
+
+  const languages = [
+    { code: 'en', label: 'EN' },
+    { code: 'ar', label: 'AR' },
+    { code: 'he', label: 'HE' }
+  ]
+
+  if (!dict) return null
+
+  const h = dict.header
+
   return (
     <>
       <header className={`
-        ${isHomePage ? 'fixed' : 'sticky top-0'} 
+        sticky top-0 
         w-full 
         z-50 
         transition-all
         duration-300
-        ${isHomePage ? (scrolled ? 'bg-white border-b' : 'bg-transparent') : 'bg-white border-b'}
-        ${isHomePage && !scrolled && 'text-background'}
+        bg-white border-b
         ${path.includes('admin') && 'hidden'}
       `}>
-        <MovingAd lang={lang} isScrolled={scrolled} isHomePage={isHomePage} />
+        <MovingAd lang={lang} isScrolled={true} isHomePage={false} headerAd={headerAd} />
 
         <div className={`container mx-auto flex h-12 items-center justify-between px-4 ${path.includes('admin') && 'hidden'}`}>
           {/* Left Links */}
@@ -89,15 +77,15 @@ export default function Navbar({ lang }: { lang: string }) {
                 categories={categories}
                 products={products}
                 loading={loading}
-                // productsLoading={productsLoading}
                 lang={lang}
+                label={h.shop}
               />
-              {/* <span className="hover:cursor-pointer">Shop</span> */}
-              <OurWorldSheet lang={lang} />
+              <OurWorldSheet lang={lang} label={h.our_world} />
               <SearchSheet
                 lang={lang}
                 categories={categories}
                 products={products}
+                label={h.search}
               />
             </div>
             {/* Icon-based items (visible on mobile) */}
@@ -106,10 +94,8 @@ export default function Navbar({ lang }: { lang: string }) {
                 categories={categories}
                 products={products}
                 loading={loading}
-                // productsLoading={productsLoading}
                 lang={lang}
               />
-              {/* <span className="hover:cursor-pointer">Shop</span> */}
               <OurWorldSheet lang={lang} />
               <Link href={`/${lang}/group-gift`} className="flex items-center gap-2 hover:cursor-pointer">
                 <Gift className="h-5 w-5" />
@@ -119,7 +105,6 @@ export default function Navbar({ lang }: { lang: string }) {
                 categories={categories}
                 products={products}
               />
-
             </div>
           </div>
 
@@ -127,8 +112,7 @@ export default function Navbar({ lang }: { lang: string }) {
           <div className="flex items-center space-x-6">
             {/* Word-based items (hidden on mobile) */}
             <div className="hidden sm:flex items-center space-x-6">
-              <ContactSheet />
-              {/* <span className="hover:cursor-pointer">My Account</span> */}
+              <ContactSheet label={h.contact} />
               {session ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -138,30 +122,47 @@ export default function Navbar({ lang }: { lang: string }) {
                         <span>{session.user.name}</span>
                       </span>
                     ) : (
-                      <span className="hover:cursor-pointer">My Account</span>
+                      <span className="hover:cursor-pointer">{h.my_account}</span>
                     )}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     {session.user.role === "admin" && (
                       <DropdownMenuItem>
-                        <Link href={`/admin`} className="w-full">Admin</Link>
+                        <Link href={`/admin`} className="w-full">{h.admin}</Link>
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem>
-                      <Link href={`/${lang}/profile`} className="w-full">Profile</Link>
+                      <Link href={`/${lang}/profile`} className="w-full">{h.profile}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => signOut()} className="hover:cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
+                      {h.sign_out}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <AuthSheet />
+                <AuthSheet label={h.my_account} />
               )}
               <Link href={`/${lang}/wishlist`} className="flex items-center gap-2 hover:cursor-pointer">
-                <span>Wishlist ({wishlistState.items.length})</span>
+                <span>{h.wishlist} ({wishlistState.items.length})</span>
               </Link>
+
+              {/* Language Selector */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-1 uppercase font-medium hover:opacity-70 transition-opacity">
+                    {lang} <ChevronDownIcon className="h-3 w-3" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {languages.map((l) => (
+                    <DropdownMenuItem key={l.code} onClick={() => handleLanguageChange(l.code)}>
+                      {l.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <CartSheet icon />
             </div>
             {/* Icon-based items (visible on mobile) */}
@@ -175,45 +176,53 @@ export default function Navbar({ lang }: { lang: string }) {
                   <DropdownMenuContent align="end">
                     {session.user.role === "admin" && (
                       <DropdownMenuItem>
-                        <Link href="/admin">Admin</Link>
+                        <Link href="/admin">{h.admin}</Link>
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem>
-                      <Link href={`/${lang}/profile`}>Profile</Link>
+                      <Link href={`/${lang}/profile`}>{h.profile}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => signOut()}>
                       <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
+                      {h.sign_out}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
                 <AuthSheet icon />
               )}
-              {/* <span className="hover:cursor-pointer"> My Account</span> */}
               <Link href={`/${lang}/wishlist`} className="relative hover:cursor-pointer">
                 <Heart className="h-5 w-5" />
                 <span className="absolute -top-2 -right-2 text-xs bg-accent text-foreground font-bold rounded-full h-4 w-4 flex items-center justify-center">
                   {wishlistState.items.length}
                 </span>
               </Link>
+
+              {/* Mobile Language Selector */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-1 uppercase text-xs font-bold">
+                    {lang}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {languages.map((l) => (
+                    <DropdownMenuItem key={l.code} onClick={() => handleLanguageChange(l.code)}>
+                      {l.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <CartSheet icon />
             </div>
           </div>
         </div>
 
         {/* Bottom Row */}
-        <div className="container mx-auto flex h-20 -mt-6 items-center justify-center px-4">
-          <Link href={`/${lang}`} className="text-3xl font-bold h-12 -mb-4">
-            {(!scrolled && isHomePage) ?
-              <>
-                <img className="h-20 object-cover hover:cursor-pointer" src={'/assets/grace-white.png'} width={500} height={100} alt="XO Perfumes" />
-              </>
-              :
-              <>
-                <img className="h-20 object-cover hover:cursor-pointer" src={'/assets/grace.svg'} width={500} height={100} alt="XO Perfumes" />
-              </>
-            }
+        <div className="container mx-auto flex items-center justify-center -mt-4 py-4">
+          <Link href={`/${lang}`} className="hover:opacity-80 transition-opacity">
+            <img className="h-16 w-auto object-contain" src={'/assets/xo-perfumes-logo.png'} alt="XO Perfumes" />
           </Link>
         </div>
       </header>

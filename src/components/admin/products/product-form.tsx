@@ -14,8 +14,19 @@ import { ImageUrlsManager } from "./image-urls-manager"
 interface ProductFormProps {
   initialData?: Partial<Product>
   categories: Category[]
+  colors: Color[]
   onSubmit: (data: Partial<Product>) => Promise<void>
 }
+
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
+import { Color } from "@/types"
+
+const COUNTRIES = [
+  { id: 'palastine', label: 'Palestine' },
+  { id: 'uae', label: 'UAE' },
+  { id: 'jordan', label: 'Jordan' },
+]
 
 interface FormErrors {
   name?: string;
@@ -33,7 +44,7 @@ interface FormErrors {
   }
 }
 
-export function ProductForm({ initialData = {}, categories, onSubmit }: ProductFormProps) {
+export function ProductForm({ initialData = {}, categories, colors, onSubmit }: ProductFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
   const { toast } = useToast()
@@ -44,15 +55,14 @@ export function ProductForm({ initialData = {}, categories, onSubmit }: ProductF
     basePrice: initialData.basePrice ?? 0,
     category: initialData.category ?? ({} as Category),
     slug: initialData.slug ?? "",
+    countries: initialData.countries ?? ['uae'],
   })
 
   const [variants, setVariants] = useState<ProductVariant[]>(
     initialData.variants?.map(variant => ({
       _id: variant._id ?? '',
       sku: variant.sku ?? "",
-      color: variant.color,
-      size: variant.size,
-      caratSize: variant.caratSize,
+      color: typeof variant.color === 'object' ? (variant.color as any)?._id : variant.color, // Handle both populated and non-populated
       price: variant.price ?? 0,
       stock: variant.stock ?? 0,
       images: variant.images ?? [],
@@ -159,8 +169,6 @@ export function ProductForm({ initialData = {}, categories, onSubmit }: ProductF
           _id: variant._id,
           sku: variant.sku,
           color: variant.color,
-          size: variant.size,
-          caratSize: variant.caratSize,
           price: Number(variant.price),
           stock: Number(variant.stock),
           images: variant.images.map(url => url.trim()).filter(url => url !== ''),
@@ -193,8 +201,6 @@ export function ProductForm({ initialData = {}, categories, onSubmit }: ProductF
       _id: '',
       sku: '',
       color: '',
-      size: '',
-      caratSize: undefined,
       price: formData.basePrice || 0,
       stock: 0,
       images: [],
@@ -209,7 +215,7 @@ export function ProductForm({ initialData = {}, categories, onSubmit }: ProductF
         console.error('Invalid variant index:', index);
         return prevVariants;
       }
-      return prevVariants.map((variant, i) => 
+      return prevVariants.map((variant, i) =>
         i === index ? { ...variant, [field]: value } : variant
       );
     });
@@ -284,9 +290,9 @@ export function ProductForm({ initialData = {}, categories, onSubmit }: ProductF
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
               className={errors.slug ? "border-destructive" : ""}
             />
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={generateSlug}
               title="Generate slug from name"
             >
@@ -321,6 +327,26 @@ export function ProductForm({ initialData = {}, categories, onSubmit }: ProductF
             <p className="text-sm text-destructive">{errors.category}</p>
           )}
         </div>
+        <div className="space-y-2">
+          <label>Available Countries</label>
+          <div className="flex flex-wrap gap-4 mt-2">
+            {COUNTRIES.map((country) => (
+              <div key={country.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`country-${country.id}`}
+                  checked={formData.countries.includes(country.id)}
+                  onCheckedChange={(checked) => {
+                    const newCountries = checked
+                      ? [...formData.countries, country.id]
+                      : formData.countries.filter(c => c !== country.id);
+                    setFormData({ ...formData, countries: newCountries });
+                  }}
+                />
+                <Label htmlFor={`country-${country.id}`}>{country.label}</Label>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Variants Section */}
@@ -338,20 +364,22 @@ export function ProductForm({ initialData = {}, categories, onSubmit }: ProductF
 
         {variants.map((variant, index) => (
           <div key={index} className="border rounded-lg p-4 space-y-4">
-            <div 
+            <div
               onClick={() => toggleExpandVariant(index)}
               className="flex justify-between cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                {expandedVariant === index ? 
-                  <ChevronDown className="h-4 w-4" /> : 
+                {expandedVariant === index ?
+                  <ChevronDown className="h-4 w-4" /> :
                   <ChevronRight className="h-4 w-4" />
                 }
                 <h3 className="font-medium">Variant {index + 1}</h3>
                 <span className="text-sm text-muted-foreground">
                   {variant.sku && `SKU: ${variant.sku}`}
-                  {variant.color && ` · ${variant.color}`}
-                  {variant.size && ` · ${variant.size}`}
+                  {variant.color && ` · ${(() => {
+                    const color = colors.find(c => c._id === variant.color);
+                    return color ? `${color.name} (${color.hex})` : 'Color';
+                  })()}`}
                   {variant.price > 0 && ` · $${variant.price}`}
                 </span>
               </div>
@@ -406,38 +434,29 @@ export function ProductForm({ initialData = {}, categories, onSubmit }: ProductF
                 </div>
 
                 <div>
-                  <label>Enamel Colour</label>
-                  <Input
-                    value={variant.color}
-                    onChange={(e) => updateVariant(index, 'color', e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label>Gold Colour</label>
+                  <label>Color (Optional)</label>
                   <Select
-                    value={variant.size || 'none'}
-                    onValueChange={(value) => updateVariant(index, 'size', value === 'none' ? undefined : value)}
+                    value={(typeof variant.color === 'string' ? variant.color : (variant.color as any)?._id) || 'none'}
+                    onValueChange={(value) => updateVariant(index, 'color', value === 'none' ? undefined : value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select gold colour" />
+                      <SelectValue placeholder="Select color" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">No gold colour</SelectItem>
-                      <SelectItem value="rose">Rose</SelectItem>
-                      <SelectItem value="yellow">Yellow</SelectItem>
-                      <SelectItem value="white">White</SelectItem>
-                      <SelectItem value="rose gold">Rose Gold</SelectItem>
+                      <SelectItem value="none">No color</SelectItem>
+                      {colors.map((color) => (
+                        <SelectItem key={color._id} value={color._id}>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-4 h-4 rounded-full border"
+                              style={{ backgroundColor: color.hex }}
+                            />
+                            {color.name} ({color.hex})
+                          </div>
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                </div>
-
-                <div>
-                  <label>Stones</label>
-                  <Input
-                    value={variant.caratSize}
-                    onChange={(e) => updateVariant(index, 'caratSize', e.target.value)}
-                  />
                 </div>
 
                 <div>

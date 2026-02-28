@@ -26,12 +26,12 @@ export function CartSheet({ icon }: { icon?: boolean }) {
       <SheetTrigger asChild>
         {icon ? (
           <div className="relative">
-          <ShoppingBagIcon className="h-5 w-5 hover:cursor-pointer" />
-          {state.items.length > 0 && (
-            <span className="absolute -top-2 -right-2 text-xs bg-accent text-foreground font-bold rounded-full h-4 w-4 flex items-center justify-center">
-              {state.items.length}
-            </span>
-          )}
+            <ShoppingBagIcon className="h-5 w-5 hover:cursor-pointer" />
+            {state.items.length > 0 && (
+              <span className="absolute -top-2 -right-2 text-xs bg-accent text-foreground font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                {state.items.length}
+              </span>
+            )}
           </div>
         ) : (
           <span className=" hover:cursor-pointer">Bag ({state.items.length})</span>
@@ -65,13 +65,10 @@ export function CartSheet({ icon }: { icon?: boolean }) {
                           <h4 className="font-medium">{item.name}</h4>
                           <div className="text-sm text-muted-foreground space-y-1">
                             {item.selectedVariant.color && (
-                              <p>Enamel Colour: {item.selectedVariant.color}</p>
-                            )}
-                            {item.selectedVariant.size && (
-                              <p>Gold Colour: {item.selectedVariant.size}</p>
-                            )}
-                            {item.selectedVariant.caratSize && (
-                              <p>Stones: {item.selectedVariant.caratSize}</p>
+                              <p>Colour: {typeof item.selectedVariant.color === 'object'
+                                ? `${(item.selectedVariant.color as any).name} (${(item.selectedVariant.color as any).hex})`
+                                : item.selectedVariant.color}
+                              </p>
                             )}
                             <p>{formatPrice(item.selectedVariant.price)}</p>
                           </div>

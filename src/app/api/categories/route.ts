@@ -7,15 +7,15 @@ import { checkAuth } from "@/lib/auth-check"
 export async function GET() {
   try {
     await connectDB()
-    
+
     // Get only main categories (those without parents)
     const categories = await Category.find({ parentId: null })
       .populate({
         path: 'subcategories',
-        select: 'name slug description _id'
+        select: 'name name_ar name_he slug description _id'
       })
       .sort({ name: 1 })
-    
+
     return NextResponse.json(categories)
   } catch (error) {
     console.error('Error in GET /api/categories:', error)
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
     await connectDB()
     const data = await req.json()
-    
+
     const category = await Category.create({
       ...data,
       // Ensure parentId is null if it's "none"

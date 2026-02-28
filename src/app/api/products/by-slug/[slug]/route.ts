@@ -7,12 +7,14 @@ export async function GET(
   req: Request,
   { params }: { params: { slug: string } }
 ) {
-    const param = await params
+  const param = await params
   try {
     await connectDB()
     await Category.find({})
     console.log("param.slug", param.slug)
-    const product = await Product.findOne({ slug: param.slug }).populate('category')
+    const product = await Product.findOne({ slug: param.slug })
+      .populate('category')
+      .populate('variants.color')
 
     console.log("product", product)
     if (!product) {

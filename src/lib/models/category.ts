@@ -2,18 +2,20 @@ import mongoose from 'mongoose';
 
 const categorySchema = new mongoose.Schema({
   name: { type: String, required: true },
+  name_ar: { type: String },
+  name_he: { type: String },
   slug: { type: String, required: true, unique: true },
   description: String,
-  parentId: { 
-    type: mongoose.Schema.Types.ObjectId, 
+  parentId: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
-    default: null 
+    default: null
   },
-  isSubcategory: { 
-    type: Boolean, 
-    default: false 
+  isSubcategory: {
+    type: Boolean,
+    default: false
   },
-  imageUrl: { 
+  imageUrl: {
     type: String,
     default: null
   },
@@ -41,7 +43,7 @@ categorySchema.virtual('subcategories', {
 });
 
 // Update timestamps on save
-categorySchema.pre('save', function(next) {
+categorySchema.pre('save', function (next) {
   this.updatedAt = new Date()
   next()
 })

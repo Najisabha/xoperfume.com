@@ -2,9 +2,7 @@ import mongoose from 'mongoose';
 
 const productVariantSchema = new mongoose.Schema({
   sku: { type: String },
-  color: { type: String },// Enamel Colour
-  size: { type: String }, // Gold Colour
-  caratSize: { type: String }, //Stones
+  color: { type: mongoose.Schema.Types.ObjectId, ref: 'Color' },
   price: { type: Number, required: true },
   stock: { type: Number, default: 0 },
   images: [String],
@@ -15,7 +13,7 @@ const productVariantSchema = new mongoose.Schema({
     default: 'in_stock'
   }
 });
- 
+
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   basePrice: { type: Number, required: false },
@@ -23,12 +21,16 @@ const productSchema = new mongoose.Schema({
   slug: { type: String, required: true, unique: true },
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   variants: [productVariantSchema],
+  countries: {
+    type: [String],
+    default: ['uae'], // Default to UAE or empty? User said "now start with (palastine, uae, jordan)"
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
 
 // Update timestamps on save
-productSchema.pre('save', function(next) {
+productSchema.pre('save', function (next) {
   this.updatedAt = new Date();
   next();
 });

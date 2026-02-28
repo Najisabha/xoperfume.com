@@ -16,14 +16,14 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     product?.variants[0] || null
   )
-  
+
   // Initialize selectedAttributes with the first variant's values
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>(() => ({
-    size: product?.variants[0]?.size || '',
-    color: product?.variants[0]?.color || '',
-    caratSize: String(product?.variants[0]?.caratSize || '')
+    color: (typeof product?.variants[0]?.color === 'object'
+      ? (product?.variants[0]?.color as any)?._id
+      : product?.variants[0]?.color) || ''
   }));
-  
+
   // Add state for tracking the currently selected image index
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -50,22 +50,10 @@ export function ProductDetails({ product }: ProductDetailsProps) {
 
   // Get available options for a specific attribute based on currently selected attributes
   const getAvailableOptions = (attribute: string) => {
-    // For the first attribute (size/Gold Colour), show all possible options
-    if (attribute === 'size') {
-      return getAllOptionsForAttribute(attribute);
-    }
-
-    // For subsequent attributes, filter based on selected values
     return product.variants
-      .filter(variant => {
-        return Object.entries(selectedAttributes).every(([key, value]) => {
-          if (key === attribute) return true;
-          if (!value) return true; // If no value is selected, don't filter
-          return String(variant[key as keyof ProductVariant]) === value;
-        });
-      })
       .reduce((acc, variant) => {
-        const value = variant[attribute as keyof ProductVariant];
+        const val = variant[attribute as keyof ProductVariant];
+        const value = typeof val === 'object' ? (val as any)?._id : val;
         if (value !== undefined && value !== '') {
           acc.add(String(value));
         }
@@ -75,13 +63,11 @@ export function ProductDetails({ product }: ProductDetailsProps) {
 
   // Updated attribute display names mapping
   const attributeDisplayNames: Record<string, string> = {
-    size: 'Gold Colour',
     color: 'Colour',
-    caratSize: 'Stones'
   };
 
   // Define the order of attributes
-  const attributeOrder = ['size', 'color', 'caratSize'];
+  const attributeOrder = ['color'];
 
   const handleVariantChange = (attribute: string, value: string) => {
     // Update selected attributes
@@ -89,7 +75,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
       ...selectedAttributes,
       [attribute]: value
     };
-    
+
     setSelectedAttributes(newSelectedAttributes);
 
     // Find matching variant that has all the currently selected attributes
@@ -98,9 +84,10 @@ export function ProductDetails({ product }: ProductDetailsProps) {
       return Object.entries(newSelectedAttributes).every(([key, selectedValue]) => {
         // Skip if no value is selected for this attribute
         if (!selectedValue) return true;
-        
+
         // Compare the variant's value with selected value
-        const variantValue = String(variant[key as keyof ProductVariant]);
+        const val = variant[key as keyof ProductVariant];
+        const variantValue = typeof val === 'object' ? (val as any)?._id : String(val);
         return variantValue === selectedValue;
       });
     });
@@ -113,57 +100,10 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     }
   };
 
-  // Add gold color mapping with lowercase keys
-  const goldColorMap: Record<string, string> = {
-    'rose': '#B76E79',
-    'yellow': '#FFD700',
-    'white': '#F5F5F5',
-    'rose gold': '#B76E79',
-  };
-
-  // Add enamel color mapping with lowercase keys
-  const enamelColorMap: Record<string, string> = {
-    'lavender': '#93B6FF',
-    'sunset': '#FF7900',
-    'turquoise': '#28E6FF',
-    'cobalt': '#0365D2',
-    'coral': '#FC665C',
-    'bubblegum': '#FF91B5',
-    'candy apple': '#E70000',
-    'sena': '#FFD700',
-
-    'emerald': '#50C878',
-    'midnight': '#191970',
-    'blue': '#0000FF',
-    'green': '#008000',
-    'pink': '#FFC0CB',
-    'yellow': '#FFD700',
-    'purple': '#800080',
-    'red': '#FF0000',
-    'black': '#000000',
-    'white': '#FFFFFF',
-  };
-
-  // Function to render color previews
-  const renderColorPreviews = (value: string, colorMap: Record<string, string>) => {
-    // Replace 'and' or 'AND' (case insensitive) with ',' before splitting
-    const normalizedValue = value.replace(/\band\b/gi, ',');
-    // Split the value by common separators and trim each part
-    const colors = normalizedValue.split(/[/,&+-]/).map(color => color.trim()).filter(Boolean);
-    
-    return colors.map((color, index) => {
-      const colorKey = color.toLowerCase();
-      return (
-        <div 
-          key={index}
-          className="size-3 rounded-full border"
-          style={{ 
-            backgroundColor: colorMap[colorKey],
-            boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.1)'
-          }}
-        />
-      );
-    });
+  const countryMap: Record<string, string> = {
+    'palastine': 'Palestine',
+    'uae': 'UAE',
+    'jordan': 'Jordan',
   };
 
   return (
@@ -172,11 +112,10 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         {/* Left side - Image Thumbnails (desktop only) */}
         <div className="hidden lg:flex pt-2 flex-col gap-4 sticky self-start top-36 h-[85vh] overflow-y-auto pb-4 pr-2">
           {selectedVariant.images.map((image, index) => (
-            <div 
-              key={index} 
-              className={`cursor-pointer rounded-md overflow-hidden border transition-all ${
-                index === selectedImageIndex ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'
-              }`}
+            <div
+              key={index}
+              className={`cursor-pointer rounded-md overflow-hidden border transition-all ${index === selectedImageIndex ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'
+                }`}
               onClick={() => setSelectedImageIndex(index)}
             >
               <img
@@ -195,15 +134,14 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             alt={`${product.name}`}
             className=" w-full my-2 mx-auto object-cover object-center rounded-lg"
           />
-          
+
           {/* Mobile & Tablet thumbnails (horizontal scrolling) */}
           <div className="flex lg:hidden gap-3 mt-4 overflow-x-auto pb-4 px-1">
             {selectedVariant.images.map((image, index) => (
-              <div 
-                key={index} 
-                className={`cursor-pointer rounded-md overflow-hidden border transition-all flex-shrink-0 w-20 md:w-20 ${
-                  index === selectedImageIndex ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'
-                }`}
+              <div
+                key={index}
+                className={`cursor-pointer rounded-md overflow-hidden border transition-all flex-shrink-0 w-20 md:w-20 ${index === selectedImageIndex ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'
+                  }`}
                 onClick={() => setSelectedImageIndex(index)}
               >
                 <img
@@ -224,11 +162,20 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             {/* Product Title and Price */}
             <div className="border-b pb-3">
               <h1 className="text-2xl font-bold tracking-tight">{product.name}</h1>
-              <p className="mt-2 text-xl text-primary">
-                {selectedVariant.price === 0 ? '' :
-                  formatPrice(selectedVariant.price)
-                }
-              </p>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-xl text-primary font-semibold">
+                  {selectedVariant.price === 0 ? '' : formatPrice(selectedVariant.price)}
+                </p>
+                {product.countries && product.countries.length > 0 && (
+                  <div className="flex gap-1">
+                    {product.countries.map(c => (
+                      <span key={c} className="text-[10px] bg-muted px-1.5 py-0.5 rounded-full uppercase font-bold text-muted-foreground border">
+                        {c === 'palastine' ? 'PS' : c.toUpperCase()}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Enhanced Product Description */}
@@ -239,42 +186,71 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             </div>
 
             {/* Variant Selection */}
-            <div className="space-y-5">
+            <div className="space-y-6">
               {attributeOrder.map(attribute => {
                 const availableOptions = getAvailableOptions(attribute);
-                return availableOptions.size > 0 && (
-                  <div key={attribute} className="space-y-4">
-                    <Label className="text-sm font-medium">
-                      {attributeDisplayNames[attribute]}
-                    </Label>
+                if (availableOptions.size === 0) return null;
+
+                const selectedValue = selectedAttributes[attribute];
+                const selectedVariantWithInfo = product.variants.find(v => {
+                  const val = v[attribute as keyof ProductVariant];
+                  return (typeof val === 'object' ? (val as any)?._id : val) === selectedValue;
+                });
+
+                const selectedName = (selectedVariantWithInfo?.color as any)?.name;
+                const selectedHex = (selectedVariantWithInfo?.color as any)?.hex;
+
+                return (
+                  <div key={attribute} className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-semibold tracking-wide uppercase text-gray-900">
+                        {attributeDisplayNames[attribute]}
+                      </Label>
+                      {selectedName && (
+                        <span className="text-sm font-medium text-muted-foreground italic">
+                          {selectedName} {selectedHex && <span className="ml-1 opacity-70">({selectedHex})</span>}
+                        </span>
+                      )}
+                    </div>
                     <RadioGroup
-                      value={selectedAttributes[attribute]}
+                      value={selectedValue}
                       onValueChange={(value) => handleVariantChange(attribute, value)}
-                      className="flex flex-wrap gap-2"
+                      className="flex flex-wrap gap-4"
                     >
-                      {Array.from(availableOptions).map((value) => (
-                        <div key={`${attribute}-${value}`}>
-                          <RadioGroupItem
-                            value={value}
-                            id={`${attribute}-${value}`}
-                            className="peer sr-only"
-                          />
-                          <Label
-                            htmlFor={`${attribute}-${value}`}
-                            className="flex text-sm h-10 items-center justify-center rounded-md border px-4 
-                              peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5
-                              hover:bg-muted cursor-pointer transition-colors gap-2"
-                          >
-                            {attribute === 'size' && (
-                              renderColorPreviews(value, goldColorMap)
-                            )}
-                            {attribute === 'color' && (
-                              renderColorPreviews(value, enamelColorMap)
-                            )}
-                            {value?.charAt(0)?.toUpperCase() + value?.slice(1)?.toLowerCase() || 'N/A'}
-                          </Label>
-                        </div>
-                      ))}
+                      {Array.from(availableOptions).map((value) => {
+                        const variantWithColor = product.variants.find(v => {
+                          const val = v[attribute as keyof ProductVariant];
+                          return (typeof val === 'object' ? (val as any)?._id : val) === value;
+                        });
+                        const colorObj = variantWithColor?.color as any;
+
+                        return (
+                          <div key={`${attribute}-${value}`}>
+                            <RadioGroupItem
+                              value={value}
+                              id={`${attribute}-${value}`}
+                              className="peer sr-only"
+                            />
+                            <Label
+                              htmlFor={`${attribute}-${value}`}
+                              className="relative flex items-center justify-center cursor-pointer transition-all
+                                peer-data-[state=checked]:scale-110
+                                peer-data-[state=checked]:after:absolute
+                                peer-data-[state=checked]:after:inset-[-4px]
+                                peer-data-[state=checked]:after:rounded-full
+                                peer-data-[state=checked]:after:border-2
+                                peer-data-[state=checked]:after:border-primary
+                                rounded-full group"
+                              title={colorObj?.name}
+                            >
+                              <div
+                                className="size-8 rounded-full border border-gray-200 shadow-sm transition-transform group-hover:scale-105"
+                                style={{ backgroundColor: colorObj?.hex || '#ccc' }}
+                              />
+                            </Label>
+                          </div>
+                        );
+                      })}
                     </RadioGroup>
                   </div>
                 );

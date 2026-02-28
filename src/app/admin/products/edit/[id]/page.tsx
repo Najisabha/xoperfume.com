@@ -12,13 +12,15 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const resolvedParams = use(params)
   const [product, setProduct] = useState<Product | null>(null)
   const [categories, setCategories] = useState([])
+  const [colors, setColors] = useState([])
   const router = useRouter()
   const { toast } = useToast()
 
   useEffect(() => {
     Promise.all([
       fetchProduct(resolvedParams.id),
-      fetchCategories()
+      fetchCategories(),
+      fetchColors()
     ])
   }, [resolvedParams.id])
 
@@ -46,6 +48,18 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     }
   }
 
+  const fetchColors = async () => {
+    try {
+      const response = await fetch('/api/colors')
+      if (response.ok) {
+        const data = await response.json()
+        setColors(data)
+      }
+    } catch (error) {
+      console.error('Error fetching colors:', error)
+    }
+  }
+
   const handleSubmit = async (data: Partial<Product>) => {
     try {
       const response = await fetch(`/api/products/${resolvedParams.id}`, {
@@ -54,7 +68,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       })
 
       if (!response.ok) throw new Error("Failed to update product")
-      
+
       toast({
         title: "Success",
         description: "Product updated successfully",
@@ -80,9 +94,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           <CardTitle>Edit Product: {product.name}</CardTitle>
         </CardHeader>
         <CardContent>
-          <ProductForm 
+          <ProductForm
             initialData={product}
-            categories={categories} 
+            categories={categories}
+            colors={colors}
             onSubmit={handleSubmit}
           />
         </CardContent>

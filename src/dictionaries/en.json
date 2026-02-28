@@ -1,4 +1,16 @@
 {
+    "header": {
+        "shop": "Shop",
+        "our_world": "Our World",
+        "contact": "Contact Us",
+        "my_account": "My Account",
+        "wishlist": "Wishlist",
+        "search": "Search for products",
+        "cart": "Cart",
+        "admin": "Admin",
+        "profile": "Profile",
+        "sign_out": "Sign Out"
+    },
     "home": {
         "title": "Elevate Your Senses",
         "description": "Discover a curated collection of luxury fragrances and premium beauty essentials for a timeless aura.",
@@ -14,5 +26,15 @@
             "explore": "Explore Our Collections",
             "explore_desc": "From signature scents to radiant beauty essentials, discover the essence of luxury."
         }
+    },
+    "footer": {
+        "quick_links": "Quick Links",
+        "shop": "Shop",
+        "client_services": "Client Services",
+        "faq": "FAQ",
+        "contact_us": "Contact Us",
+        "follow_us": "Follow Us",
+        "follow_us_desc": "Follow us on Instagram for the latest updates, behind-the-scenes content, and more.",
+        "rights_reserved": "© {year} XO Perfumes. All rights reserved."
     }
 }

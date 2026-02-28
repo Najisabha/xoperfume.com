@@ -8,11 +8,13 @@ import { useState, useEffect } from "react"
 
 export default function AddProductPage() {
   const [categories, setCategories] = useState([])
+  const [colors, setColors] = useState([])
   const router = useRouter()
   const { toast } = useToast()
 
   useEffect(() => {
     fetchCategories()
+    fetchColors()
   }, [])
 
   const fetchCategories = async () => {
@@ -27,6 +29,18 @@ export default function AddProductPage() {
     }
   }
 
+  const fetchColors = async () => {
+    try {
+      const response = await fetch('/api/colors')
+      if (response.ok) {
+        const data = await response.json()
+        setColors(data)
+      }
+    } catch (error) {
+      console.error('Error fetching colors:', error)
+    }
+  }
+
   const handleSubmit = async (data: any) => {
     try {
       const response = await fetch("/api/products", {
@@ -38,7 +52,7 @@ export default function AddProductPage() {
       })
 
       if (!response.ok) throw new Error("Failed to create product")
-      
+
       toast({
         title: "Success",
         description: "Product created successfully",
@@ -60,8 +74,9 @@ export default function AddProductPage() {
           <CardTitle>Add New Product</CardTitle>
         </CardHeader>
         <CardContent>
-          <ProductForm 
-            categories={categories} 
+          <ProductForm
+            categories={categories}
+            colors={colors}
             onSubmit={handleSubmit}
           />
         </CardContent>

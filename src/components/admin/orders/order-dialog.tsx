@@ -103,19 +103,11 @@ export function OrderDialog({ order, open, onOpenChange, onOrderUpdate }: OrderD
                     <p className="text-sm text-muted-foreground">
                       Quantity: {item?.quantity || 0}
                     </p>
-                    {item?.selectedVariant?.size && (
-                      <p className="text-sm text-muted-foreground">
-                        Gold Colour: {item.selectedVariant.size}
-                      </p>
-                    )}
                     {item.selectedVariant.color && (
                       <p className="text-sm text-muted-foreground">
-                        Enamel Colour: {item.selectedVariant.color}
-                      </p>
-                    )}
-                    {item.selectedVariant.caratSize && (
-                      <p className="text-sm text-muted-foreground">
-                        Stones: {item.selectedVariant.caratSize}
+                        Colour: {typeof item.selectedVariant.color === 'object'
+                          ? `${(item.selectedVariant.color as any).name} (${(item.selectedVariant.color as any).hex})`
+                          : item.selectedVariant.color}
                       </p>
                     )}
                     <p className="text-sm text-muted-foreground">

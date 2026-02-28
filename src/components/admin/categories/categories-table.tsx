@@ -44,7 +44,7 @@ export function CategoriesTable() {
       const response = await fetch(`/api/categories/${id}`, {
         method: 'DELETE',
       })
-      
+
       if (response.ok) {
         setCategories(categories.filter(category => category._id !== id))
       }
@@ -70,81 +70,97 @@ export function CategoriesTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-            {categories.map((category) => (
+          {categories.map((category) => (
             <Fragment key={category._id}>
               <TableRow>
-              <TableCell>
-                {category.imageUrl ? (
-                <img 
-                  src={category.imageUrl} 
-                  alt={category.name}
-                  className="w-10 h-10 object-cover rounded-md"
-                  onError={(e) => e.currentTarget.src = '/placeholder.jpg'}
-                />
-                ) : '-'}
-              </TableCell>
-              <TableCell>{category.name}</TableCell>
-              <TableCell>Main Category</TableCell>
-              <TableCell>{category.slug}</TableCell>
-              <TableCell>{category.description || '-'}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                <Link href={`/admin/categories/edit/${category._id}`}>
-                  <Button variant="ghost" size="icon">
-                  <Edit className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setDeleteId(category._id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-                <Link href={`/admin/categories/${category._id}/subcategories/new`}>
-                  <Button variant="ghost" size="sm">
-                  Add Subcategory
-                  </Button>
-                </Link>
-                </div>
-              </TableCell>
+                <TableCell>
+                  {category.imageUrl ? (
+                    <img
+                      src={category.imageUrl}
+                      alt={category.name}
+                      className="w-10 h-10 object-cover rounded-md"
+                      onError={(e) => e.currentTarget.src = '/placeholder.jpg'}
+                    />
+                  ) : '-'}
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <span>{category.name}</span>
+                    <div className="flex gap-1 mt-0.5">
+                      {category.name_ar && <span className="text-[10px] bg-blue-100 text-blue-700 px-1 rounded">AR</span>}
+                      {category.name_he && <span className="text-[10px] bg-green-100 text-green-700 px-1 rounded">HE</span>}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>Main Category</TableCell>
+                <TableCell>{category.slug}</TableCell>
+                <TableCell>{category.description || '-'}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Link href={`/admin/categories/edit/${category._id}`}>
+                      <Button variant="ghost" size="icon">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setDeleteId(category._id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <Link href={`/admin/categories/${category._id}/subcategories/new`}>
+                      <Button variant="ghost" size="sm">
+                        Add Subcategory
+                      </Button>
+                    </Link>
+                  </div>
+                </TableCell>
               </TableRow>
               {category.subcategories?.map((sub) => (
-              <TableRow key={sub._id} className="bg-muted/50">
-                <TableCell>
-                {sub.imageUrl ? (
-                  <img 
-                  src={sub.imageUrl} 
-                  alt={sub.name}
-                  className="w-10 h-10 object-cover rounded-md ml-8"
-                  onError={(e) => e.currentTarget.src = '/placeholder.jpg'}
-                  />
-                ) : '-'}
-                </TableCell>
-                <TableCell className="pl-8">└─ {sub.name}</TableCell>
-                <TableCell>Subcategory</TableCell>
-                <TableCell>{sub.slug}</TableCell>
-                <TableCell>{sub.description || '-'}</TableCell>
-                <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Link href={`/admin/categories/edit/${sub._id}`}>
-                  <Button variant="ghost" size="icon">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  </Link>
-                  <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setDeleteId(sub._id)}
-                  >
-                  <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-                </TableCell>
-              </TableRow>
+                <TableRow key={sub._id} className="bg-muted/50">
+                  <TableCell>
+                    {sub.imageUrl ? (
+                      <img
+                        src={sub.imageUrl}
+                        alt={sub.name}
+                        className="w-10 h-10 object-cover rounded-md ml-8"
+                        onError={(e) => e.currentTarget.src = '/placeholder.jpg'}
+                      />
+                    ) : '-'}
+                  </TableCell>
+                  <TableCell className="pl-8">
+                    <div className="flex flex-col">
+                      <span>└─ {sub.name}</span>
+                      <div className="flex gap-1 mt-0.5 ml-4">
+                        {sub.name_ar && <span className="text-[10px] bg-blue-100 text-blue-700 px-1 rounded">AR</span>}
+                        {sub.name_he && <span className="text-[10px] bg-green-100 text-green-700 px-1 rounded">HE</span>}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>Subcategory</TableCell>
+                  <TableCell>{sub.slug}</TableCell>
+                  <TableCell>{sub.description || '-'}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link href={`/admin/categories/edit/${sub._id}`}>
+                        <Button variant="ghost" size="icon">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleteId(sub._id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
               ))}
             </Fragment>
-            ))}
+          ))}
         </TableBody>
       </Table>
 

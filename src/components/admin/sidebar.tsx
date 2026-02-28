@@ -17,6 +17,7 @@ import {
   Home,
   ChevronLeft,
   ChevronRight,
+  Palette,
 } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
@@ -42,6 +43,11 @@ const menuItems = [
     title: "Categories",
     href: "/admin/categories",
     icon: Layers3
+  },
+  {
+    title: "Colors",
+    href: "/admin/colors",
+    icon: Palette
   },
   {
     title: "Orders",
@@ -72,8 +78,12 @@ const menuItems = [
     title: "Images",
     href: "/admin/blobs",
     icon: Image,
+  },
+  {
+    title: "Settings",
+    href: "/admin/settings",
+    icon: Cookie, // reusing cookie icon or we could use Settings icon if imported, but Cookie is already imported and not used
   }
-
 ]
 
 export function AdminSidebar() {
@@ -85,7 +95,7 @@ export function AdminSidebar() {
     const handleResize = () => {
       setIsCollapsed(window.innerWidth < 1024)
     }
-    
+
     handleResize()
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
@@ -109,7 +119,7 @@ export function AdminSidebar() {
             {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </button>
         </div>
-        
+
         <nav className="flex-1 space-y-1 px-3">
           {menuItems.map((item) => {
             const Icon = item.icon

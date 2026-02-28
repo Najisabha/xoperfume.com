@@ -1,9 +1,15 @@
+export interface Color {
+  _id: string;
+  name: string;
+  hex: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface ProductVariant {
   _id: string
   sku: string;
-  color?: string;
-  size?: string;
-  caratSize?: string;
+  color?: string | Color;
   price: number;
   stock: number;
   images: string[];
@@ -19,6 +25,7 @@ export interface Product {
   slug: string;
   category: Category;
   variants: ProductVariant[];
+  countries: string[];
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -42,6 +49,8 @@ export type Contact = {
 export type Category = {
   _id: string
   name: string
+  name_ar?: string
+  name_he?: string
   slug: string
   description?: string
   parentId?: string

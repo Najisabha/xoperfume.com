@@ -36,9 +36,6 @@ export async function GET(req: NextRequest): Promise<NextResponse<SearchResponse
       $or: [
         { name: { $regex: term, $options: 'i' } },
         { 'variants.sku': { $regex: term, $options: 'i' } },
-        { 'variants.color': { $regex: term, $options: 'i' } },
-        { 'variants.size': { $regex: term, $options: 'i' } },
-        { 'variants.caratSize': { $regex: term, $options: 'i' } },
         { description: { $regex: term, $options: 'i' } },
         { 'category.name': { $regex: term, $options: 'i' } }
       ]
@@ -56,7 +53,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<SearchResponse
 
     const products = await Product.find(baseQuery)
       .populate('category')
-      .sort({ 
+      .sort({
         'variants.stock': -1, // Prioritize in-stock products
         name: 1 // Then sort alphabetically
       })
@@ -68,7 +65,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<SearchResponse
     const scoredProducts = products.map(product => {
       let score = 0;
       const normalizedName = normalizeText(product.name);
-      
+
       // Increase score based on term matches in name
       searchTerms.forEach(term => {
         if (normalizedName.includes(term)) score += 2;

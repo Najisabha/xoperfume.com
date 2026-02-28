@@ -12,13 +12,15 @@ export function ShopSheet({
   categories,
   products,
   loading,
-  lang
+  lang,
+  label
 }: {
   icon?: boolean
   categories: any[]
   products: any[]
   loading: boolean
   lang: string
+  label?: string
 }) {
   const [open, setOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<any>(null)
@@ -41,7 +43,7 @@ export function ShopSheet({
         {icon ? (
           <ShoppingBag className="h-5 w-5" />
         ) : (
-          <span className="hover:cursor-pointer">Shop</span>
+          <span className="hover:cursor-pointer">{label || 'Shop'}</span>
         )}
       </SheetTrigger>
       <SheetContent
@@ -51,45 +53,6 @@ export function ShopSheet({
       >
         <SheetHeader>Shop Categories</SheetHeader>
         <div className="flex gap-4 h-full mt-8 relative">
-          {/* Decorative Images - Hidden on mobile */}
-          <div className=" z-20 absolute left-0 bottom-[20%] w-[160px] h-[160px] opacity-90 rotate-[-10deg] transition-all duration-300 ease-in-out"
-            style={{
-              transform: selectedCategory ? 'translateX(-50px) rotate(-10deg)' : 'translateX(0) rotate(-10deg)'
-            }}
-          >
-            <img
-              src="/assets/drawings/ai3.svg"
-              alt="Decorative pattern 1"
-              width={160}
-              height={160}
-              className="object-contain"
-            />
-          </div>
-
-          <div className={`hidden md:block z-20 absolute transition-all duration-300 ease-in-out ${selectedCategory
-            ? 'right-[-40px] top-[35%] w-[200px] h-[200px] rotate-[15deg]'
-            : 'right-[-20px] top-[35%] w-[180px] h-[180px] rotate-[15deg]'
-            } opacity-90`}>
-            <img
-              src="/assets/drawings/ai2.svg"
-              alt="Decorative pattern 2"
-              width={200}
-              height={200}
-              className="object-contain"
-            />
-          </div>
-
-          {selectedCategory && (
-            <div className="z-20 absolute bottom-[-40px] left-[40%] w-[140px] h-[140px] opacity-90 rotate-[5deg] animate-in fade-in">
-              <img
-                src="/assets/drawings/ai7.svg"
-                alt="Decorative pattern 3"
-                width={140}
-                height={140}
-                className="object-contain"
-              />
-            </div>
-          )}
 
           {/* Parent Categories */}
           <div className={`flex flex-col gap-2 z-50 ${selectedCategory ? 'w-full md:w-1/3' : 'w-full'} relative z-10`}>
@@ -117,19 +80,14 @@ export function ShopSheet({
                     }}
                   >
                     <div className="flex justify-between items-center">
-                      <span className="font-medium">{category.name}</span>
+                      <span className="font-medium">
+                        {lang === 'ar' && category.name_ar ? category.name_ar : lang === 'he' && category.name_he ? category.name_he : category.name}
+                      </span>
                       {category.subcategories?.length > 0 && (
                         <span className="text-sm text-muted-foreground">→</span>
                       )}
                     </div>
                   </div>
-                  {(index === categories.length - 1) && (
-                    <Link href='/en/size-guide' className="flex justify-between flex-col p-2 hover:bg-accent rounded-md cursor-pointer" onClick={closeSheet}>
-                      <span className="font-bold">
-                        Sizing Guide
-                      </span>
-                    </Link>
-                  )}
                 </div>
               ))
             )}
@@ -140,7 +98,9 @@ export function ShopSheet({
             <div className="w-full md:w-2/3 border-l pl-8 z-50 animate-in slide-in-from-right-1 h-[calc(100vh-150px)] overflow-y-auto">
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-semibold">{selectedCategory.name}</h2>
+                  <h2 className="text-2xl font-semibold">
+                    {lang === 'ar' && selectedCategory.name_ar ? selectedCategory.name_ar : lang === 'he' && selectedCategory.name_he ? selectedCategory.name_he : selectedCategory.name}
+                  </h2>
                   <p className="text-muted-foreground mt-2">
                     {selectedCategory.description || `Explore our ${selectedCategory.name.toLowerCase()} collection`}
                   </p>
@@ -152,7 +112,7 @@ export function ShopSheet({
                   onClick={closeSheet}
                   className="inline-block mt-4 text-sm text-primary hover:underline"
                 >
-                  View all {selectedCategory.name} →
+                  View all {lang === 'ar' && selectedCategory.name_ar ? selectedCategory.name_ar : lang === 'he' && selectedCategory.name_he ? selectedCategory.name_he : selectedCategory.name} →
                 </Link>
 
                 {/* Products Grid */}
