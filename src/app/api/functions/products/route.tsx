@@ -22,11 +22,11 @@ export async function POST(req: Request) {
         // Handle file upload
         const formData = await req.formData();
         const file = formData.get('file') as File;
-        
+
         if (!file) {
-            return NextResponse.json({ 
-                success: false, 
-                error: 'No file uploaded' 
+            return NextResponse.json({
+                success: false,
+                error: 'No file uploaded'
             }, { status: 400 });
         }
 
@@ -73,11 +73,9 @@ export async function POST(req: Request) {
 
                 // If category not found, fall back to "hoops-charms"
                 if (!category) {
-                    console.log(`Category not found for: ${articleCategory}, falling back to hoops-charms`);
                     category = await Category.findOne({ slug: 'hoops-charms' });
-                    
+
                     if (!category) {
-                        console.log('Fallback category not found either, skipping product');
                         continue;
                     }
                 }
@@ -107,19 +105,19 @@ export async function POST(req: Request) {
         for (const [_, group] of productGroups) {
             // Group variants by gold colour
             const variantsByGold = new Map<string, Map<string, string[]>>();
-            
+
             group.variants.forEach(variant => {
                 if (!variantsByGold.has(variant.goldColour)) {
                     variantsByGold.set(variant.goldColour, new Map());
                 }
-                
+
                 const goldVariants = variantsByGold.get(variant.goldColour)!;
-                
+
                 // Group by stones
                 if (!goldVariants.has(variant.stones)) {
                     goldVariants.set(variant.stones, []);
                 }
-                
+
                 // Add enamel colour if not already present
                 if (!goldVariants.get(variant.stones)?.includes(variant.enamelColour)) {
                     goldVariants.get(variant.stones)?.push(variant.enamelColour);
@@ -136,7 +134,6 @@ export async function POST(req: Request) {
                 // Check if product exists
                 const existingProduct = await Product.findOne({ slug });
                 if (existingProduct) {
-                    console.log(`Product already exists with slug: ${slug}`);
                     continue;
                 }
 
@@ -179,7 +176,6 @@ export async function POST(req: Request) {
                     description: group.description
                 });
 
-                console.log('New product created:', product.name);
             }
         }
 

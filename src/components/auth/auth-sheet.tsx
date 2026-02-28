@@ -13,32 +13,34 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SignInForm } from "./sign-in-form"
 import { SignUpForm } from "./sign-up-form"
 
-export function AuthSheet({ icon, label }: { icon?: boolean, label?: string }) {
+export function AuthSheet({ icon, label, dict }: { icon?: boolean, label?: string, dict: any }) {
   const [open, setOpen] = useState(false)
+
+  if (!dict) return null
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         {icon ? (
-          <User className="h-5 w-5 hover:cursor-pointer" />
+          <User className="h-5 w-5 -me-0.5 hover:cursor-pointer" />
         ) : (
-          <span className="hover:cursor-pointer">{label || 'My Account'}</span>
+          <span className="hover:cursor-pointer">{label || dict.header.my_account}</span>
         )}
       </SheetTrigger>
       <SheetContent className="flex w-[90%] flex-col bg-white sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle className="text-center">Welcome to XO Perfumes</SheetTitle>
+          <SheetTitle className="text-center">{dict.auth.welcome}</SheetTitle>
         </SheetHeader>
         <Tabs defaultValue="signin" className="mt-6">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsTrigger value="signin">{dict.auth.sign_in}</TabsTrigger>
+            <TabsTrigger value="signup">{dict.auth.sign_up}</TabsTrigger>
           </TabsList>
           <TabsContent value="signin">
-            <SignInForm onSuccess={() => setOpen(false)} />
+            <SignInForm onSuccess={() => setOpen(false)} dict={dict} />
           </TabsContent>
           <TabsContent value="signup">
-            <SignUpForm onSuccess={() => setOpen(false)} />
+            <SignUpForm onSuccess={() => setOpen(false)} dict={dict} />
           </TabsContent>
         </Tabs>
       </SheetContent>

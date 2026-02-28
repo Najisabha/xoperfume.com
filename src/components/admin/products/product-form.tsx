@@ -52,6 +52,8 @@ export function ProductForm({ initialData = {}, categories, colors, onSubmit }: 
 
   const [formData, setFormData] = useState({
     name: initialData.name ?? "",
+    name_ar: (initialData as any).name_ar ?? "",
+    name_he: (initialData as any).name_he ?? "",
     basePrice: initialData.basePrice ?? 0,
     category: initialData.category ?? ({} as Category),
     slug: initialData.slug ?? "",
@@ -62,12 +64,14 @@ export function ProductForm({ initialData = {}, categories, colors, onSubmit }: 
     initialData.variants?.map(variant => ({
       _id: variant._id ?? '',
       sku: variant.sku ?? "",
-      color: typeof variant.color === 'object' ? (variant.color as any)?._id : variant.color, // Handle both populated and non-populated
+      color: typeof variant.color === 'object' ? (variant.color as any)?._id : variant.color,
       price: variant.price ?? 0,
       stock: variant.stock ?? 0,
       images: variant.images ?? [],
       stockStatus: variant.stockStatus ?? "in_stock",
       description: variant.description ?? "",
+      description_ar: (variant as any).description_ar ?? "",
+      description_he: (variant as any).description_he ?? "",
     })) ?? []
   )
 
@@ -173,7 +177,9 @@ export function ProductForm({ initialData = {}, categories, colors, onSubmit }: 
           stock: Number(variant.stock),
           images: variant.images.map(url => url.trim()).filter(url => url !== ''),
           stockStatus: variant.stockStatus,
-          description: variant.description || '', // Ensure description is always a string
+          description: variant.description || '',
+          description_ar: (variant as any).description_ar || '',
+          description_he: (variant as any).description_he || '',
         }))
       }
 
@@ -206,7 +212,9 @@ export function ProductForm({ initialData = {}, categories, colors, onSubmit }: 
       images: [],
       stockStatus: 'in_stock',
       description: '',
-    }])
+      description_ar: '',
+      description_he: '',
+    } as any])
   }
 
   const updateVariant = (index: number, field: keyof ProductVariant, value: any) => {
@@ -272,7 +280,7 @@ export function ProductForm({ initialData = {}, categories, colors, onSubmit }: 
       {/* Basic Product Information */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label>Name</label>
+          <label>Name (English)</label>
           <Input
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -281,6 +289,24 @@ export function ProductForm({ initialData = {}, categories, colors, onSubmit }: 
           {errors.name && (
             <p className="text-sm text-destructive">{errors.name}</p>
           )}
+        </div>
+        <div className="space-y-2">
+          <label>Name (Arabic - اسم بالعربية)</label>
+          <Input
+            dir="rtl"
+            value={formData.name_ar}
+            onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
+            placeholder="اسم المنتج بالعربية"
+          />
+        </div>
+        <div className="space-y-2">
+          <label>Name (Hebrew - שם בעברית)</label>
+          <Input
+            dir="rtl"
+            value={formData.name_he}
+            onChange={(e) => setFormData({ ...formData, name_he: e.target.value })}
+            placeholder="שם המוצר בעברית"
+          />
         </div>
         <div className="space-y-2">
           <label>Slug</label>
@@ -522,11 +548,31 @@ export function ProductForm({ initialData = {}, categories, colors, onSubmit }: 
                 </div>
 
                 <div className="md:col-span-2">
-                  <label>Description</label>
+                  <label>Description (English)</label>
                   <Textarea
                     value={variant.description ?? ''}
                     onChange={(e) => updateVariant(index, 'description', e.target.value)}
                     placeholder="Enter variant description"
+                    rows={4}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label>Description (Arabic - وصف بالعربية)</label>
+                  <Textarea
+                    dir="rtl"
+                    value={(variant as any).description_ar ?? ''}
+                    onChange={(e) => updateVariant(index, 'description_ar' as any, e.target.value)}
+                    placeholder="وصف المنتج بالعربية"
+                    rows={4}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label>Description (Hebrew - תיאור בעברית)</label>
+                  <Textarea
+                    dir="rtl"
+                    value={(variant as any).description_he ?? ''}
+                    onChange={(e) => updateVariant(index, 'description_he' as any, e.target.value)}
+                    placeholder="תיאור המוצר בעברית"
                     rows={4}
                   />
                 </div>

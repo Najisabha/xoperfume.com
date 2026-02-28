@@ -13,7 +13,8 @@ export function ShopSheet({
   products,
   loading,
   lang,
-  label
+  label,
+  dict
 }: {
   icon?: boolean
   categories: any[]
@@ -21,6 +22,7 @@ export function ShopSheet({
   loading: boolean
   lang: string
   label?: string
+  dict?: any
 }) {
   const [open, setOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<any>(null)
@@ -51,20 +53,20 @@ export function ShopSheet({
         className={`flex w-[90%] sm:w-full overflow-y-clip bg-white flex-col transition-all duration-300 ease-in-out ${selectedCategory ? 'max-w-[90%] sm:max-w-5xl' : 'max-w-[90%] sm:max-w-md'
           }`}
       >
-        <SheetHeader>Shop Categories</SheetHeader>
+        <SheetHeader>{dict?.shop?.sheet?.title || 'Shop Categories'}</SheetHeader>
         <div className="flex gap-4 h-full mt-8 relative">
 
           {/* Parent Categories */}
           <div className={`flex flex-col gap-2 z-50 ${selectedCategory ? 'w-full md:w-1/3' : 'w-full'} relative z-10`}>
             {loading ? (
-              <div>Loading categories...</div>
+              <div>{dict?.shop?.sheet?.loading || 'Loading categories...'}</div>
             ) : (
               categories?.map((category: any, index) => (
                 <div key={index}>
                   {(index === 0) && (
-                    <Link href='/en/shop' className="flex justify-between flex-col p-2 hover:bg-accent rounded-md cursor-pointer" onClick={closeSheet}>
+                    <Link href={`/${lang}/shop`} className="flex justify-between flex-col p-2 hover:bg-accent rounded-md cursor-pointer" onClick={closeSheet}>
                       <span className="font-bold">
-                        View All
+                        {dict?.shop?.sheet?.view_all || 'View All'}
                       </span>
                     </Link>
                   )}
@@ -102,7 +104,7 @@ export function ShopSheet({
                     {lang === 'ar' && selectedCategory.name_ar ? selectedCategory.name_ar : lang === 'he' && selectedCategory.name_he ? selectedCategory.name_he : selectedCategory.name}
                   </h2>
                   <p className="text-muted-foreground mt-2">
-                    {selectedCategory.description || `Explore our ${selectedCategory.name.toLowerCase()} collection`}
+                    {selectedCategory.description || `${dict?.shop?.sheet?.explore || 'Explore our'} ${lang === 'ar' && selectedCategory.name_ar ? selectedCategory.name_ar : lang === 'he' && selectedCategory.name_he ? selectedCategory.name_he : selectedCategory.name} ${dict?.shop?.sheet?.explore_suffix || 'collection'}`}
                   </p>
                 </div>
 
@@ -112,7 +114,7 @@ export function ShopSheet({
                   onClick={closeSheet}
                   className="inline-block mt-4 text-sm text-primary hover:underline"
                 >
-                  View all {lang === 'ar' && selectedCategory.name_ar ? selectedCategory.name_ar : lang === 'he' && selectedCategory.name_he ? selectedCategory.name_he : selectedCategory.name} →
+                  {dict?.shop?.sheet?.view_all_category || 'View all'} {lang === 'ar' && selectedCategory.name_ar ? selectedCategory.name_ar : lang === 'he' && selectedCategory.name_he ? selectedCategory.name_he : selectedCategory.name} →
                 </Link>
 
                 {/* Products Grid */}
@@ -131,7 +133,7 @@ export function ShopSheet({
                           className="object-cover rounded-md group-hover:opacity-90 transition-opacity"
                         />
                       </div>
-                      <h3 className="font-medium group-hover:font-black">{product.name}</h3>
+                      <h3 className="font-medium group-hover:font-black">{lang === 'ar' && product.name_ar ? product.name_ar : lang === 'he' && product.name_he ? product.name_he : product.name}</h3>
                       <p className="text-sm text-muted-foreground">
                         {formatPrice(product.variants[0]?.price)}
                       </p>

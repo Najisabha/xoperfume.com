@@ -8,7 +8,6 @@ export async function checkAuth(requiredRole?: string) {
   const session = await getServerSession(authConfig)
 
   if (!session) {
-    console.log("Unauthorized")
     return new NextResponse("Unauthorized", { status: 401 })
   }
 
@@ -17,9 +16,8 @@ export async function checkAuth(requiredRole?: string) {
     if (requiredRole === 'user' && session.user.role === 'admin') {
       return null
     }
-    
+
     if (session.user.role !== requiredRole) {
-      console.log("Forbidden")
       return new NextResponse("Forbidden", { status: 403 })
     }
   }
@@ -30,7 +28,7 @@ export async function checkAuth(requiredRole?: string) {
 // For server components
 export async function authCheck(requiredRole?: string) {
   const session = await getServerSession(authConfig)
-  
+
   if (!session) {
     redirect("/auth/signin")
   }
@@ -40,7 +38,7 @@ export async function authCheck(requiredRole?: string) {
     if (requiredRole === 'user' && session.user.role === 'admin') {
       return
     }
-    
+
     if (session.user.role !== requiredRole) {
       redirect("/unauthorized")
     }

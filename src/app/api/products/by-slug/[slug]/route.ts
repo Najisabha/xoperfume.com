@@ -11,12 +11,10 @@ export async function GET(
   try {
     await connectDB()
     await Category.find({})
-    console.log("param.slug", param.slug)
     const product = await Product.findOne({ slug: param.slug })
       .populate('category')
       .populate('variants.color')
 
-    console.log("product", product)
     if (!product) {
       return NextResponse.json(
         { error: "Product not found" },

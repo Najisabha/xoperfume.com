@@ -28,12 +28,16 @@ type ContactFormData = z.infer<typeof contactSchema>
 
 interface ContactFormProps {
   onSuccess?: () => void
+  dict?: any
 }
 
-export function ContactForm({ onSuccess }: ContactFormProps) {
+export function ContactForm({ onSuccess, dict }: ContactFormProps) {
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
   })
+
+  if (!dict) return null
+  const f = dict.contact.form
 
   async function onSubmit(data: ContactFormData) {
     try {
@@ -47,14 +51,14 @@ export function ContactForm({ onSuccess }: ContactFormProps) {
 
       toast({
         title: "Success",
-        description: "Your message has been sent. We'll be in touch soon.",
+        description: f.success,
       })
       form.reset()
       onSuccess?.()
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again.",
+        description: f.error,
         variant: "destructive",
       })
     }
@@ -68,7 +72,7 @@ export function ContactForm({ onSuccess }: ContactFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>{f.name}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -82,7 +86,7 @@ export function ContactForm({ onSuccess }: ContactFormProps) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{f.email}</FormLabel>
               <FormControl>
                 <Input type="email" {...field} />
               </FormControl>
@@ -96,7 +100,7 @@ export function ContactForm({ onSuccess }: ContactFormProps) {
           name="subject"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Subject</FormLabel>
+              <FormLabel>{f.subject}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -110,7 +114,7 @@ export function ContactForm({ onSuccess }: ContactFormProps) {
           name="message"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Message</FormLabel>
+              <FormLabel>{f.message}</FormLabel>
               <FormControl>
                 <Textarea rows={5} {...field} />
               </FormControl>
@@ -127,10 +131,10 @@ export function ContactForm({ onSuccess }: ContactFormProps) {
           {form.formState.isSubmitting ? (
             <div className="flex items-center gap-2">
               <Spinner size="sm" />
-              <span>Sending...</span>
+              <span>{f.sending}</span>
             </div>
           ) : (
-            "Send Message"
+            f.send
           )}
         </Button>
       </form>

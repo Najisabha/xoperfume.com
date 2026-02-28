@@ -2,9 +2,10 @@ import { NextResponse } from "next/server"
 import connectDB from "@/lib/db"
 import { Color } from "@/lib/models/color"
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         await connectDB()
+        const { id } = await params
         const data = await req.json()
 
         if (!data.name || !data.hex) {
@@ -15,8 +16,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         }
 
         const color = await Color.findByIdAndUpdate(
-            params.id,
-            { name: data.name, hex: data.hex },
+            id,
+            { name: data.name, name_ar: data.name_ar || '', name_he: data.name_he || '', hex: data.hex },
             { new: true }
         )
 
@@ -37,10 +38,11 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         await connectDB()
-        const color = await Color.findByIdAndDelete(params.id)
+        const { id } = await params
+        const color = await Color.findByIdAndDelete(id)
 
         if (!color) {
             return NextResponse.json(

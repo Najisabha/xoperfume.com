@@ -1,52 +1,51 @@
-import Image from "next/image"
 import Link from "next/link"
 import { formatPrice } from "@/lib/utils"
-// import { useCart } from "@/contexts/cart-context"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Placeholder } from "@/components/ui/placeholder"
 import { useState, useEffect, useRef } from "react"
 import { useWishlist } from "@/contexts/wishlist-context"
 import { Heart } from "lucide-react"
-import { Product } from "@/types"
+import { Product, Color } from "@/types"
 
-export function ProductCard({product}: {product: Product}) {
+interface ProductCardProps {
+  product: Product
+  lang?: string
+}
+
+function getLocalizedName(product: Product, lang?: string): string {
+  if (lang === 'ar' && product.name_ar) return product.name_ar
+  if (lang === 'he' && product.name_he) return product.name_he
+  return product.name
+}
+
+function getLocalizedColorName(color: Color | string | undefined, lang?: string): string {
+  if (!color || typeof color === 'string') return typeof color === 'string' ? color : ''
+  if (lang === 'ar' && color.name_ar) return color.name_ar
+  if (lang === 'he' && color.name_he) return color.name_he
+  return color.name
+}
+
+export function ProductCard({ product, lang }: ProductCardProps) {
   // const { addItem } = useCart()
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist()
   const [currentImage, setCurrentImage] = useState(0)
   const [selectedColor, setSelectedColor] = useState("")
 
-  // Get unique colors from variants
-  const uniqueColors = Array.from(
-    new Set(
-      product.variants
-        .map(variant => variant.color)
-        .filter(Boolean)
-    )
+  // Get unique Color objects from variants (to access translations)
+  const uniqueColorObjects = product.variants
+    .map(variant => variant.color)
+    .filter(Boolean)
+    .reduce((acc, color) => {
+      const key = typeof color === 'string' ? color : color!.name
+      if (!acc.some(c => (typeof c === 'string' ? c : c.name) === key)) {
+        acc.push(color!)
+      }
+      return acc
+    }, [] as (string | import('@/types').Color)[])
+
+  // Keep uniqueColors as English names (used as selection keys)
+  const uniqueColors = uniqueColorObjects.map(c =>
+    typeof c === 'string' ? c : c.name
   )
 
-  // Color mapping for display
-  const colorMap: Record<string, string> = {
-    'lavender': '#93B6FF',
-    'sunset': '#FF7900',
-    'turquoise': '#28E6FF',
-    'cobalt': '#0365D2',
-    'coral': '#FC665C',
-    'bubblegum': '#FF91B5',
-    'candy apple': '#E70000',
-    'sena': '#FFD700',
-    'emerald': '#50C878',
-    'midnight': '#191970',
-    'blue': '#0000FF',
-    'green': '#008000',
-    'pink': '#FFC0CB',
-    'yellow': '#FFD700',
-    'purple': '#800080',
-    'red': '#FF0000',
-    'black': '#000000',
-    'white': '#FFFFFF',
-    'rose': '#B76E79',
-    'rose gold': '#B76E79',
-  }
 
   const allImages = Array.from(
     new Set(
@@ -65,18 +64,21 @@ export function ProductCard({product}: {product: Product}) {
       clearTimeout(initialTimerRef.current)
       initialTimerRef.current = null
     }
-    
+
     if (intervalTimerRef.current) {
       clearInterval(intervalTimerRef.current)
       intervalTimerRef.current = null
     }
-    
+
     if (allImages.length > 1) {
       let relevantImages = allImages;
-      
+
       // If a color is selected, only rotate through images of that color
       if (selectedColor) {
-        const colorVariants = product.variants.filter(v => v.color === selectedColor);
+        const colorVariants = product.variants.filter(v => {
+          const colorName = typeof v.color === 'string' ? v.color : v.color?.name;
+          return colorName === selectedColor;
+        });
         if (colorVariants.length > 0) {
           const colorImages = Array.from(new Set(colorVariants.flatMap(v => v.images)));
           if (colorImages.length > 1) {
@@ -93,31 +95,35 @@ export function ProductCard({product}: {product: Product}) {
           }
         }
       }
-      
+
       // First quick transition to second image
-      const nextImageIndex = selectedColor 
+      const nextImageIndex = selectedColor
         ? allImages.findIndex(img => {
-            // Find the next image from the same color variant
-            const variant = product.variants.find(v => 
-              v.color === selectedColor && v.images.includes(allImages[currentImage])
-            );
-            return variant && variant.images.includes(img) && img !== allImages[currentImage];
-          })
+          // Find the next image from the same color variant
+          const variant = product.variants.find(v => {
+            const colorName = typeof v.color === 'string' ? v.color : v.color?.name;
+            return colorName === selectedColor && v.images.includes(allImages[currentImage]);
+          });
+          return variant && variant.images.includes(img) && img !== allImages[currentImage];
+        })
         : 1;
-        
+
       if (nextImageIndex > 0) {
         setCurrentImage(nextImageIndex);
       }
-      
+
       // Then start slower transitions
       initialTimerRef.current = setTimeout(() => {
         intervalTimerRef.current = setInterval(() => {
           setCurrentImage(prev => {
             // If color is selected, only cycle through that color's images
             if (selectedColor) {
-              const colorVariants = product.variants.filter(v => v.color === selectedColor);
+              const colorVariants = product.variants.filter(v => {
+                const colorName = typeof v.color === 'string' ? v.color : v.color?.name;
+                return colorName === selectedColor;
+              });
               const colorImages = Array.from(new Set(colorVariants.flatMap(v => v.images)));
-              
+
               if (colorImages.length > 1) {
                 const currentImgIndex = colorImages.findIndex(img => img === allImages[prev]);
                 const nextIndex = currentImgIndex === -1 || currentImgIndex === colorImages.length - 1 ? 0 : currentImgIndex + 1;
@@ -141,16 +147,19 @@ export function ProductCard({product}: {product: Product}) {
       clearTimeout(initialTimerRef.current)
       initialTimerRef.current = null
     }
-    
+
     if (intervalTimerRef.current) {
       clearInterval(intervalTimerRef.current)
       intervalTimerRef.current = null
     }
-    
+
     // Reset to the appropriate image based on selection
     if (selectedColor) {
       // Find variant with this color and show its first image
-      const variant = product.variants.find(v => v.color === selectedColor)
+      const variant = product.variants.find(v => {
+        const colorName = typeof v.color === 'string' ? v.color : v.color?.name;
+        return colorName === selectedColor;
+      })
       if (variant && variant.images.length > 0) {
         const imageIndex = allImages.findIndex(img => img === variant.images[0])
         if (imageIndex !== -1) {
@@ -181,7 +190,7 @@ export function ProductCard({product}: {product: Product}) {
       clearTimeout(initialTimerRef.current)
       initialTimerRef.current = null
     }
-    
+
     if (intervalTimerRef.current) {
       clearInterval(intervalTimerRef.current)
       intervalTimerRef.current = null
@@ -195,9 +204,12 @@ export function ProductCard({product}: {product: Product}) {
     }
 
     setSelectedColor(color)
-    
+
     // Find variant with this color and show its first image
-    const variant = product.variants.find(v => v.color === color)
+    const variant = product.variants.find(v => {
+      const colorName = typeof v.color === 'string' ? v.color : v.color?.name;
+      return colorName === color;
+    })
     if (variant && variant.images.length > 0) {
       const imageIndex = allImages.findIndex(img => img === variant.images[0])
       if (imageIndex !== -1) {
@@ -207,18 +219,23 @@ export function ProductCard({product}: {product: Product}) {
   }
 
   // Function to render color previews
-  const renderColorPreview = (color: string) => {
-    // Replace 'and' or 'AND' (case insensitive) with ',' before splitting
-    const normalizedValue = color.replace(/\band\b/gi, ',');
-    // Split the value by common separators and trim each part
-    const colors = normalizedValue.split(/[/,&+-]/).map(color => color.trim()).filter(Boolean);
-    
-    const colorKey = colors[0].toLowerCase();
+  const renderColorPreview = (colorName: string) => {
+    // Find a variant with this color to see if it has a hex code
+    const variantWithColor = product.variants.find(v => {
+      const name = typeof v.color === 'string' ? v.color : v.color?.name;
+      return name === colorName;
+    });
+
+    let displayHex = "";
+    if (variantWithColor && typeof variantWithColor.color === 'object') {
+      displayHex = variantWithColor.color.hex;
+    }
+
     return (
-      <div 
-        className={`size-4 rounded-full border ${selectedColor === color ? 'ring-2 ring-primary ring-offset-2' : ''}`}
-        style={{ 
-          backgroundColor: colorMap[colorKey] || '#ccc',
+      <div
+        className={`size-4 rounded-full border ${selectedColor === colorName ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+        style={{
+          backgroundColor: displayHex || '#ccc',
           boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.1)'
         }}
       />
@@ -245,8 +262,8 @@ export function ProductCard({product}: {product: Product}) {
           <Heart className="h-5 w-5" />
         )}
       </button>
-      <Link 
-        href={`/products/${product.slug}`} 
+      <Link
+        href={lang ? `/${lang}/products/${product.slug}` : `/products/${product.slug}`}
         className="block overflow-hidden"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -264,28 +281,32 @@ export function ProductCard({product}: {product: Product}) {
 
       <div className="p-2 text-center">
         <h3 className="mb-1 text-base font-medium">
-          <Link href={`/products/${product.slug}`}>{product.name}</Link>
+          <Link href={lang ? `/${lang}/products/${product.slug}` : `/products/${product.slug}`}>{getLocalizedName(product, lang)}</Link>
         </h3>
         <p className="mb-2 text-sm text-muted-foreground">
           {product.variants[0].price === 0 ? "Available on Request" : formatPrice(product.variants[0].price)}
         </p>
-        
+
         {/* Color selector */}
         {uniqueColors.length > 0 && (
           <div className="flex justify-center gap-2 mt-2">
-            {uniqueColors.map((color, index) => (
-              <button
-                key={index}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleColorSelect(color || '');
-                }}
-                className="cursor-pointer"
-                title={color}
-              >
-                {renderColorPreview(color || '')}
-              </button>
-            ))}
+            {uniqueColorObjects.map((colorObj, index) => {
+              const colorKey = typeof colorObj === 'string' ? colorObj : colorObj.name
+              const localizedColorName = typeof colorObj === 'string' ? colorObj : getLocalizedColorName(colorObj, lang)
+              return (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleColorSelect(colorKey || '');
+                  }}
+                  className="cursor-pointer"
+                  title={localizedColorName}
+                >
+                  {renderColorPreview(colorKey || '')}
+                </button>
+              )
+            })}
           </div>
         )}
       </div>

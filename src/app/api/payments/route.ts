@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth"
 import { authConfig } from "@/lib/auth.config"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-11-20.acacia"
+  apiVersion: "2025-02-24.acacia"
 })
 
 export async function POST(req: Request) {
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     if (paymentIntentId) {
       try {
         paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-        
+
         // Update if amount changed
         if (paymentIntent.amount !== Math.round(amount * 100)) {
           paymentIntent = await stripe.paymentIntents.update(paymentIntentId, {
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
           });
         }
       } catch (error) {
-        console.log('Payment intent not found or expired, creating new one');
+        console.error('Payment intent not found or expired, creating new one');
       }
     }
 
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     if (!paymentIntent) {
       paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100),
-        currency: "aed",
+        currency: "usd",
         automatic_payment_methods: {
           enabled: true,
         },
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id
     });

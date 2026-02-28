@@ -4,7 +4,7 @@ import { MetadataRoute } from "next";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = "https://www.xoperfumes.com";
 
-    const staticPages = ['contact', 'faq', 'group-gift', 'shop', 'values', 'sustainable', 'story', 'size-guide', '']
+    const staticPages = ['contact', 'faq', 'shop', 'values', 'sustainable', 'story', 'size-guide', '']
     const lang = ['en'];
     const staticRoutes = staticPages.map((page) => {
         return lang.map((lang) => {

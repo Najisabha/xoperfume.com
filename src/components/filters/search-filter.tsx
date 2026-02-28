@@ -6,11 +6,11 @@ import { Input } from "@/components/ui/input"
 import { Search, Loader2 } from "lucide-react"
 import { useDebounce } from "@/hooks/use-debounce"
 
-export function SearchFilter() {
+export function SearchFilter({ dict }: { dict?: any }) {
   const { filters, setSearchQuery } = useFilter()
   const [localQuery, setLocalQuery] = useState(filters.searchQuery)
   const [isSearching, setIsSearching] = useState(false)
-  
+
   // Use debounced value
   const debouncedQuery = useDebounce(localQuery, 300)
 
@@ -30,7 +30,7 @@ export function SearchFilter() {
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       )}
       <Input
-        placeholder="Search products..."
+        placeholder={dict?.search_placeholder || "Search products..."}
         value={localQuery}
         onChange={(e) => setLocalQuery(e.target.value)}
         className="pl-9"

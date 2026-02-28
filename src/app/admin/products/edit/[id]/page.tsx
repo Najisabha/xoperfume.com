@@ -64,6 +64,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     try {
       const response = await fetch(`/api/products/${resolvedParams.id}`, {
         method: "PATCH",
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       })
 

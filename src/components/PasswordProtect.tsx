@@ -7,7 +7,7 @@ export default function PasswordProtect({ children }: { children: React.ReactNod
   const [passwordInput, setPasswordInput] = useState('');
   const [loading, setLoading] = useState(true);
 
-  const correctPassword = 'grace123'; // Replace with your password
+  const correctPassword = 'xo123';
   const storageKey = 'xoperfumes-auth';
   const fourHoursInMs = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
 

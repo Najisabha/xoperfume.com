@@ -14,12 +14,13 @@ import { Input } from "@/components/ui/input"
 import { Trash2, Minus, Plus, ShoppingBagIcon } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { formatPrice } from "@/lib/utils"
-import Image from "next/image"
 
-export function CartSheet({ icon }: { icon?: boolean }) {
+export function CartSheet({ icon, dict, lang }: { icon?: boolean, dict: any, lang: string }) {
   const router = useRouter()
   const { state, removeItem, updateQuantity } = useCart()
   const [open, setOpen] = useState(false)
+
+  const c = dict.cart
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -34,19 +35,19 @@ export function CartSheet({ icon }: { icon?: boolean }) {
             )}
           </div>
         ) : (
-          <span className=" hover:cursor-pointer">Bag ({state.items.length})</span>
+          <span className=" hover:cursor-pointer">{c.bag_count.replace('{count}', state.items.length)}</span>
         )}
       </SheetTrigger>
       <SheetContent className="flex w-[90%] flex-col bg-white sm:max-w-lg">
         <SheetHeader className="px-6">
-          <SheetTitle>Shopping Cart ({state.items.length})</SheetTitle>
+          <SheetTitle>{c.cart_count.replace('{count}', state.items.length)}</SheetTitle>
         </SheetHeader>
 
         <div className="flex flex-1 flex-col gap-6 overflow-hidden">
           <div className="flex-1 overflow-y-auto px-6">
             {state.items.length === 0 ? (
               <div className="flex h-full items-center justify-center">
-                <p className="text-muted-foreground">Your cart is empty</p>
+                <p className="text-muted-foreground">{c.empty}</p>
               </div>
             ) : (
               <div className="divide-y">
@@ -65,7 +66,7 @@ export function CartSheet({ icon }: { icon?: boolean }) {
                           <h4 className="font-medium">{item.name}</h4>
                           <div className="text-sm text-muted-foreground space-y-1">
                             {item.selectedVariant.color && (
-                              <p>Colour: {typeof item.selectedVariant.color === 'object'
+                              <p>{c.colour}: {typeof item.selectedVariant.color === 'object'
                                 ? `${(item.selectedVariant.color as any).name} (${(item.selectedVariant.color as any).hex})`
                                 : item.selectedVariant.color}
                               </p>
@@ -125,7 +126,7 @@ export function CartSheet({ icon }: { icon?: boolean }) {
 
           <div className="border-t px-6 py-4">
             <div className="flex justify-between font-medium">
-              <span>Total</span>
+              <span>{c.total}</span>
               <span>{formatPrice(state.total)}</span>
             </div>
             <Button
@@ -133,11 +134,11 @@ export function CartSheet({ icon }: { icon?: boolean }) {
               size="lg"
               onClick={() => {
                 setOpen(false)
-                router.push("/cart")
+                router.push(`/${lang}/cart`)
               }}
               disabled={state.items.length === 0}
             >
-              View Cart
+              {c.view_cart}
             </Button>
           </div>
         </div>

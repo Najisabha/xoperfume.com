@@ -5,6 +5,7 @@ import { Providers } from "@/components/providers"
 import { Suspense } from "react"
 import Footer from "@/components/footer"
 import { i18n } from "@/lib/i18n-config"
+import { WhatsAppButton } from "@/components/whatsapp-button"
 import PasswordProtect from "@/components/PasswordProtect"
 import { getDictionary } from "@/lib/get-dictionary"
 import connectDB from "@/lib/db"
@@ -148,6 +149,7 @@ export default async function RootLayout({ children, params }: {
             </main>
             <Footer lang={lang} dict={dict} />
             <Toaster />
+            <WhatsAppButton />
           </PasswordProtect>
         </Providers>
       </body>

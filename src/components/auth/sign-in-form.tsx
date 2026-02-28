@@ -26,9 +26,10 @@ const formSchema = z.object({
 interface SignInFormProps {
   onSuccess?: () => void // for sheet only
   callbackUrl?: string
+  dict: any
 }
 
-export function SignInForm({ onSuccess, callbackUrl }: SignInFormProps) {
+export function SignInForm({ onSuccess, callbackUrl, dict }: SignInFormProps) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -62,31 +63,30 @@ export function SignInForm({ onSuccess, callbackUrl }: SignInFormProps) {
             ipAddress: ""
           })
         })
-        
+
         toast({
-          title: "Success",
-          description: "Signed in successfully",
+          title: dict.auth.success,
+          description: dict.auth.success_signin,
         })
-        
+
         router.refresh()
         onSuccess?.()
         if (callbackUrl) {
-          console.log("callbackUrl", callbackUrl)
           router.push(callbackUrl)
         }
       } else {
-        setError("Invalid email or password")
+        setError(dict.auth.invalid_credentials)
         toast({
-          title: "Error",
-          description: "Invalid email or password",
+          title: dict.auth.error,
+          description: dict.auth.invalid_credentials,
           variant: "destructive",
         })
       }
     } catch (error) {
-      setError("Something went wrong")
+      setError(dict.auth.error_general)
       toast({
-        title: "Error",
-        description: "Something went wrong",
+        title: dict.auth.error,
+        description: dict.auth.error_general,
         variant: "destructive",
       })
     } finally {
@@ -102,9 +102,9 @@ export function SignInForm({ onSuccess, callbackUrl }: SignInFormProps) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{dict.auth.email}</FormLabel>
               <FormControl>
-                <Input placeholder="name@example.com" {...field} />
+                <Input placeholder={dict.auth.email_placeholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -115,7 +115,7 @@ export function SignInForm({ onSuccess, callbackUrl }: SignInFormProps) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>{dict.auth.password}</FormLabel>
               <FormControl>
                 <Input type="password" {...field} />
               </FormControl>
@@ -129,28 +129,9 @@ export function SignInForm({ onSuccess, callbackUrl }: SignInFormProps) {
           </div>
         )}
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Signing in..." : "Sign In"}
+          {isLoading ? dict.auth.signing_in : dict.auth.sign_in}
         </Button>
       </form>
-      {/* <div className="relative my-4">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
-          </span>
-        </div>
-      </div>
-      <Button
-        variant="outline"
-        type="button"
-        className="w-full"
-        onClick={() => signIn("google", { callbackUrl: "/admin" })}
-        disabled={isLoading}
-      >
-        Continue with Google
-      </Button> */}
     </Form>
   )
 }

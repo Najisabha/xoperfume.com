@@ -64,7 +64,7 @@ export default async function ContactUsPage({ params }: any) {
                   href="https://wa.me/971568101611"
                   className="text-lg hover:underline"
                 >
-                  +971 56-810-1611
+                  +91111111111
                 </Link>
               </div>
 

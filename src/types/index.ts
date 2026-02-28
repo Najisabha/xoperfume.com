@@ -1,6 +1,8 @@
 export interface Color {
   _id: string;
   name: string;
+  name_ar?: string;
+  name_he?: string;
   hex: string;
   createdAt?: string;
   updatedAt?: string;
@@ -14,12 +16,16 @@ export interface ProductVariant {
   stock: number;
   images: string[];
   stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
-  description?: string; // Added description field
+  description?: string;
+  description_ar?: string;
+  description_he?: string;
 }
 
 export interface Product {
   _id: string;
   name: string;
+  name_ar?: string;
+  name_he?: string;
   basePrice?: number;
   image?: string;
   slug: string;
@@ -94,7 +100,6 @@ export interface Order {
   totalContributed?: number;
   remainingAmount?: number;
   progress?: number;
-  childAge?: number;
   message?: string;
   expiryDate?: string;
   remainingTime?: {

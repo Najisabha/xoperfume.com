@@ -75,7 +75,6 @@ export async function POST(req: Request) {
           stockStatus: item.selectedVariant.stockStatus
         }
       })),
-      childAge: data.childAge,
       message: data?.message,
       customerEmail: data.customerEmail,
       shippingAddress: data.shippingAddress,

@@ -50,10 +50,6 @@ const orderSchema = new mongoose.Schema({
     emirates: String,
     phone: String
   },
-  childAge: {
-    type: Number,
-    required: true
-  },
   message: String,
   customerEmail: {
     type: String,

@@ -121,13 +121,33 @@ export function ColorsClient() {
                         </DialogHeader>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Color Name</Label>
+                                <Label htmlFor="name">Color Name (English)</Label>
                                 <Input
                                     id="name"
                                     value={currentColor?.name || ''}
                                     onChange={(e) => setCurrentColor({ ...currentColor, name: e.target.value })}
                                     placeholder="e.g. Ruby Red"
                                     required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="name_ar">Color Name (Arabic - اسم بالعربية)</Label>
+                                <Input
+                                    id="name_ar"
+                                    dir="rtl"
+                                    value={(currentColor as any)?.name_ar || ''}
+                                    onChange={(e) => setCurrentColor({ ...currentColor, name_ar: e.target.value } as any)}
+                                    placeholder="اسم اللون بالعربية"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="name_he">Color Name (Hebrew - שם בעברית)</Label>
+                                <Input
+                                    id="name_he"
+                                    dir="rtl"
+                                    value={(currentColor as any)?.name_he || ''}
+                                    onChange={(e) => setCurrentColor({ ...currentColor, name_he: e.target.value } as any)}
+                                    placeholder="שם הצבע בעברית"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -162,7 +182,9 @@ export function ColorsClient() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Preview</TableHead>
-                            <TableHead>Name</TableHead>
+                            <TableHead>Name (EN)</TableHead>
+                            <TableHead>Arabic</TableHead>
+                            <TableHead>Hebrew</TableHead>
                             <TableHead>Hex Code</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
@@ -177,6 +199,8 @@ export function ColorsClient() {
                                     />
                                 </TableCell>
                                 <TableCell>{color.name}</TableCell>
+                                <TableCell dir="rtl">{(color as any).name_ar || '—'}</TableCell>
+                                <TableCell dir="rtl">{(color as any).name_he || '—'}</TableCell>
                                 <TableCell><code>{color.hex}</code></TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex justify-end gap-2">

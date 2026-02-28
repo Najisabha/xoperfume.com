@@ -52,6 +52,7 @@ export async function generateMetadata({ params }: CategoryPageProps) {
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const param = await params;
+  const lang = param.lang;
   return (
     <FilterProvider initialFilters={{ categories: [param.slug] }}>
       <div className="container mx-auto px-4 py-8">
@@ -64,12 +65,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
         <div className="grid gap-8 md:grid-cols-[240px_1fr]">
           <aside className="space-y-8">
-            <CategoryFilter />
+            <CategoryFilter lang={lang} />
             <PriceFilter />
           </aside>
 
           <main>
-            <ProductGrid />
+            <ProductGrid lang={lang} />
           </main>
         </div>
       </div>

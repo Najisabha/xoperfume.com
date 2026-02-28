@@ -17,24 +17,25 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "@/components/ui/use-toast"
 
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email(),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-})
-
 interface SignUpFormProps {
   onSuccess?: () => void
+  dict: any
 }
 
-export function SignUpForm({ onSuccess }: SignUpFormProps) {
+export function SignUpForm({ onSuccess, dict }: SignUpFormProps) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  const formSchema = z.object({
+    name: z.string().min(2, dict.auth.validation.name_min),
+    email: z.string().email(),
+    password: z.string().min(6, dict.auth.validation.password_min),
+    confirmPassword: z.string(),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: dict.auth.validation.passwords_mismatch,
+    path: ["confirmPassword"],
+  })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,7 +51,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
     try {
       setIsLoading(true)
       setError(null)
-      
+
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -67,17 +68,17 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       }
 
       toast({
-        title: "Success",
-        description: "Account created successfully. Please sign in.",
+        title: dict.auth.success,
+        description: dict.auth.success_signup,
       })
 
       onSuccess?.()
       router.push("/auth/signin")
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Something went wrong"
+      const errorMessage = error instanceof Error ? error.message : dict.auth.error_general
       setError(errorMessage)
       toast({
-        title: "Error",
+        title: dict.auth.error,
         description: errorMessage,
         variant: "destructive",
       })
@@ -94,9 +95,9 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>{dict.auth.name}</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder={dict.auth.name_placeholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -107,9 +108,9 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{dict.auth.email}</FormLabel>
               <FormControl>
-                <Input placeholder="name@example.com" {...field} />
+                <Input placeholder={dict.auth.email_placeholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -120,7 +121,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>{dict.auth.password}</FormLabel>
               <FormControl>
                 <Input type="password" {...field} />
               </FormControl>
@@ -133,7 +134,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
+              <FormLabel>{dict.auth.confirm_password}</FormLabel>
               <FormControl>
                 <Input type="password" {...field} />
               </FormControl>
@@ -147,7 +148,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
           </div>
         )}
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Creating account..." : "Create account"}
+          {isLoading ? dict.auth.creating_account : dict.auth.create_account}
         </Button>
       </form>
     </Form>

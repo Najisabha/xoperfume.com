@@ -23,11 +23,11 @@ interface AddressFormProps {
   submitLabel?: string
 }
 
-export function AddressForm({ 
-  initialData, 
-  onSubmit, 
+export function AddressForm({
+  initialData,
+  onSubmit,
   onCancel,
-  submitLabel = "Save Address" 
+  submitLabel = "Save Address"
 }: AddressFormProps) {
   const form = useForm<AddressFormData>({
     resolver: zodResolver(addressSchema),
@@ -43,8 +43,6 @@ export function AddressForm({
       isDefault: initialData?.isDefault ?? false,
     },
   })
-
-  console.log("initialData", initialData)
 
   return (
     <Form {...form}>

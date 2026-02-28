@@ -9,17 +9,17 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-const SORT_OPTIONS = [
-  { value: "price-asc", label: "Price: Low to High" },
-  { value: "price-desc", label: "Price: High to Low" },
-  { value: "name-asc", label: "Name: A to Z" },
-  { value: "name-desc", label: "Name: Z to A" },
-] as const
-
-type SortValue = typeof SORT_OPTIONS[number]["value"]
-
-export function SortSelector() {
+export function SortSelector({ dict }: { dict?: any }) {
   const { filters, setSortBy } = useFilter()
+
+  const SORT_OPTIONS = [
+    { value: "price-asc", label: dict?.sort_price_asc || "Price: Low to High" },
+    { value: "price-desc", label: dict?.sort_price_desc || "Price: High to Low" },
+    { value: "name-asc", label: dict?.sort_name_asc || "Name: A to Z" },
+    { value: "name-desc", label: dict?.sort_name_desc || "Name: Z to A" },
+  ] as const
+
+  type SortValue = typeof SORT_OPTIONS[number]["value"]
 
   return (
     <Select
@@ -27,7 +27,7 @@ export function SortSelector() {
       onValueChange={(value: SortValue) => setSortBy(value)}
     >
       <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Sort by" />
+        <SelectValue placeholder={dict?.sort_by || "Sort by"} />
       </SelectTrigger>
       <SelectContent>
         {SORT_OPTIONS.map((option) => (

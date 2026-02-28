@@ -24,6 +24,8 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     return {
       _id: product._id.toString(),
       name: product.name,
+      name_ar: product.name_ar,
+      name_he: product.name_he,
       basePrice: product.basePrice,
       image: product.variants[0]?.images[0] || '',
       slug: product.slug,
@@ -31,6 +33,8 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       category: product.category ? {
         _id: product.category._id.toString(),
         name: product.category.name,
+        name_ar: product.category.name_ar,
+        name_he: product.category.name_he,
         slug: product.category.slug,
         isSubcategory: product.category.isSubcategory
       } : {
@@ -43,6 +47,8 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         _id: variant._id?.toString() || "",
         sku: variant.sku,
         description: variant.description,
+        description_ar: variant.description_ar,
+        description_he: variant.description_he,
         color: variant.color,
         price: variant.price,
         stock: variant.stock,

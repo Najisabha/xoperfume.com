@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Cookies from 'js-cookie'
 import { useForm } from "react-hook-form"
@@ -32,78 +32,123 @@ import {
 import { Input } from "@/components/ui/input"
 import { z } from "zod"
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+  ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+  : Promise.resolve(null);
 
-interface CheckoutFormProps {
+// Ref interface for Stripe elements
+interface StripeContextRef {
+  stripe: any;
+  elements: any;
+}
+
+// Inner Component to capture stripe/elements
+const StripeCardSection = forwardRef<StripeContextRef, {}>((props, ref) => {
+  const stripe = useStripe()
+  const elements = useElements()
+
+  useImperativeHandle(ref, () => ({
+    stripe,
+    elements
+  }))
+
+  return <PaymentElement />
+})
+StripeCardSection.displayName = "StripeCardSection"
+
+// Minimal wrapper for Stripe
+const StripeWrapper = forwardRef<StripeContextRef, { clientSecret: string }>(({ clientSecret }, ref) => {
+  if (!clientSecret) return <Spinner />
+  return (
+    <Elements stripe={stripePromise} options={{ clientSecret }}>
+      <StripeCardSection ref={ref} />
+    </Elements>
+  )
+})
+StripeWrapper.displayName = "StripeWrapper"
+
+export interface CheckoutFormProps {
   finalTotal: number
   appliedPromo: any
   paymentIntentId: string | null
   setPaymentIntentId: (id: string) => void
+  lang?: string
+  dict?: any
 }
 
-function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
+export function CheckoutForm({ finalTotal, appliedPromo, paymentIntentId, setPaymentIntentId, lang, dict }: CheckoutFormProps) {
   const { data: session } = useSession()
-  const stripe = useStripe()
-  const elements = useElements()
   const router = useRouter()
   const { state: { items, total }, clearCart } = useCart()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [addresses, setAddresses] = useState<Address[]>([])
   const [selectedAddressId, setSelectedAddressId] = useState<string>("")
   const [showNewAddressForm, setShowNewAddressForm] = useState(false)
+  // Default to cash to prevent calling /payments on mount
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash'>('cash')
+  const [clientSecret, setClientSecret] = useState("")
+
+  const stripeRef = useRef<StripeContextRef>(null)
+
+  const t = dict?.checkout || {}
+  const isRtl = lang === 'ar' || lang === 'he'
+
+  // Fetch Payment Intent only when 'card' is selected
+  useEffect(() => {
+    if (paymentMethod === 'card' && !paymentIntentId && !clientSecret) {
+      fetch("/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: finalTotal,
+          promoCode: appliedPromo
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setClientSecret(data.clientSecret)
+          setPaymentIntentId(data.paymentIntentId)
+          Cookies.set('temp_payment_intent', data.paymentIntentId, { expires: 1 / 24 })
+        })
+        .catch(console.error)
+    } else if (paymentIntentId && !clientSecret) {
+      // If we have an intent in cookie but no clientSecret (reloaded page),
+      // we might need to recreate or fetch the secret. For simplicity, we just refetch if card is chosen
+    }
+  }, [paymentMethod, paymentIntentId, clientSecret, finalTotal, appliedPromo, setPaymentIntentId])
+
+  useEffect(() => {
+    return () => {
+      Cookies.remove('temp_payment_intent')
+      Cookies.remove('temp_promo')
+    }
+  }, [])
 
   const form = useForm<AddressFormData>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      address: "",
-      aptSuite: "",
-      city: "",
-      country: "",
-      emirates: "",
-      phone: "",
-      isDefault: false,
+      firstName: "", lastName: "", address: "", aptSuite: "",
+      city: "", country: "", emirates: "", phone: "", isDefault: false,
     }
   })
 
   const addressForm = useForm<AddressFormData>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      address: "",
-      aptSuite: "",
-      city: "",
-      country: "",
-      emirates: "",
-      phone: "",
-      isDefault: false,
+      firstName: "", lastName: "", address: "", aptSuite: "",
+      city: "", country: "", emirates: "", phone: "", isDefault: false,
     }
   })
 
-  // Separate form for order details (email and child age)
   const orderDetailsForm = useForm({
     resolver: zodResolver(z.object({
       email: z.string().email("Invalid email address"),
-      childAges: z.array(z.number().min(0, "Age must be positive").max(18, "Age must be 18 or under"))
     })),
     defaultValues: {
       email: "",
-      childAges: [8]
     }
-  });
+  })
 
-  // Add this new function after the useEffect hooks
-  const addAgeField = () => {
-    const currentAges = orderDetailsForm.getValues("childAges");
-    orderDetailsForm.setValue("childAges", [...currentAges, 8]);
-  };
-
-  const removeAgeField = (index: number) => {
-    const currentAges = orderDetailsForm.getValues("childAges");
-    orderDetailsForm.setValue("childAges", currentAges.filter((_, i) => i !== index));
-  };
 
   useEffect(() => {
     if (session?.user) {
@@ -128,50 +173,15 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
     if (session?.user?.email) {
       orderDetailsForm.setValue('email', session.user.email);
     }
-  }, [session]);
-
-  // async function onAddressSubmit(data: AddressFormData) {
-  //   if (!session?.user) {
-  //     // For guest users, just use the address without saving
-  //     form.reset(data)
-  //     return
-  //   }
-
-  //   try {
-  //     const response = await fetch("/api/user/addresses", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(data),
-  //     });
-
-  //     if (!response.ok) throw new Error("Failed to save address");
-
-  //     const newAddresses = await response.json();
-  //     setAddresses(newAddresses);
-  //     setShowNewAddressForm(false);
-  //     // Select the newly created address
-  //     const newAddress = newAddresses[newAddresses.length - 1];
-  //     setSelectedAddressId(newAddress._id);
-      
-  //     // Update form values with the new address
-  //     form.reset(data);
-  //   } catch (error) {
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to save address",
-  //       variant: "destructive"
-  //     });
-  //   }
-  // }
+  }, [session, orderDetailsForm])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!stripe || !elements) return;
+    if (paymentMethod === 'card' && !stripeRef.current?.stripe) return;
 
     try {
       setIsSubmitting(true);
-      
-      // Validate order details
+
       const orderDetails = orderDetailsForm.getValues();
       const isOrderDetailsValid = await orderDetailsForm.trigger();
       if (!isOrderDetailsValid) {
@@ -192,7 +202,7 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
         if (!selectedAddress) {
           throw new Error("Please select a valid address");
         }
-        
+
         shippingAddress = {
           firstName: selectedAddress.firstName,
           lastName: selectedAddress.lastName,
@@ -207,63 +217,71 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
         throw new Error("Please select an address or create a new one");
       }
 
-      // Fixed payment confirmation
-      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/orders/success`,
-          payment_method_data: {
-            billing_details: {
-              address: {
-                city: shippingAddress.city,
-                country: shippingAddress.country,
-                line1: shippingAddress.address,
-                line2: shippingAddress.aptSuite,
+      let finalPaymentIntentId = "CASH";
+
+      if (paymentMethod === 'card') {
+        const { stripe, elements } = stripeRef.current!;
+        const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/orders/success`,
+            payment_method_data: {
+              billing_details: {
+                address: {
+                  city: shippingAddress.city,
+                  country: shippingAddress.country,
+                  line1: shippingAddress.address,
+                  line2: shippingAddress.aptSuite,
+                }
               }
             }
+          },
+          redirect: "if_required",
+        });
+
+        if (stripeError) {
+          if (stripeError.type === "card_error" || stripeError.type === "validation_error") {
+            setIsSubmitting(false);
+            return;
           }
-        },
-        redirect: "if_required",
+          throw new Error(stripeError.message);
+        }
+
+        if (paymentIntent && paymentIntent.status === "succeeded") {
+          finalPaymentIntentId = paymentIntent.id;
+        } else {
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      const orderResponse = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items,
+          total: finalTotal,
+          originalTotal: total,
+          shippingAddress,
+          customerEmail: session?.user?.email || orderDetails.email,
+          paymentIntentId: finalPaymentIntentId,
+          promoCode: appliedPromo ? {
+            code: appliedPromo.code,
+            discount: appliedPromo.calculatedDiscount
+          } : null,
+          userId: session?.user?.id
+        }),
       });
 
-      if (stripeError) {
-        throw new Error(stripeError.message);
-      }
+      if (!orderResponse.ok) throw new Error("Failed to create order");
 
-      if (paymentIntent.status === "succeeded") {
-        // Create order
-        const orderResponse = await fetch("/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            items,
-            total: finalTotal,
-            originalTotal: total,
-            shippingAddress,
-            childAge: orderDetails.childAges.join(','), // Convert array to comma-separated string
-            customerEmail: session?.user?.email || orderDetails.email,
-            paymentIntentId: paymentIntent.id,
-            promoCode: appliedPromo ? {
-              code: appliedPromo.code,
-              discount: appliedPromo.calculatedDiscount
-            } : null,
-            userId: session?.user?.id // Will be undefined for guests
-          }),
-        });
-
-        if (!orderResponse.ok) throw new Error("Failed to create order");
-
-        const order = await orderResponse.json();
-        clearCart();
-        router.push(`/orders/${order._id}`);
-        toast({
-          title: "Order placed successfully",
-          description: "Thank you for your purchase!"
-        });
-      }
+      const order = await orderResponse.json();
+      clearCart();
+      router.push(`/${lang || 'en'}/orders/success?id=${order._id}`);
+      // Removed generic toast to prioritize the thank you page
     } catch (error) {
       toast({
-        title: "Error",
+        title: t.error || "Error",
         description: (error as any)?.message || "Failed to process payment",
         variant: "destructive"
       });
@@ -274,9 +292,8 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Order Details Section */}
       <div className="space-y-4 border rounded-lg p-4">
-        <h3 className="font-medium">Order Details</h3>
+        <h3 className="font-medium">{t.order_details || 'Order Details'}</h3>
         <Form {...orderDetailsForm}>
           <div className="space-y-4">
             <FormField
@@ -284,70 +301,18 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{t.email || 'Email'}</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="email" 
-                      placeholder="Email" 
+                    <Input
+                      type="email"
                       {...field}
-                      disabled={!!session?.user} 
+                      disabled={!!session?.user}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-medium">
-                  Children Ages
-                  </h4>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addAgeField}
-                >
-                  Add Another Child
-                </Button>
-              </div>
-              
-              {orderDetailsForm.watch("childAges").map((_, index) => (
-                <div key={index} className="flex gap-2">
-                  <FormField
-                    control={orderDetailsForm.control}
-                    name={`childAges.${index}`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel className="sr-only">Child {index + 1} Age</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="18"
-                            {...field}
-                            onChange={e => field.onChange(parseInt(e.target.value))}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {index > 0 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="self-end mb-6"
-                      onClick={() => removeAgeField(index)}
-                    >
-                      ✕
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
           </div>
         </Form>
       </div>
@@ -355,24 +320,25 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
       {!session?.user && (
         <div className="rounded-md bg-muted p-4 mb-4">
           <p className="text-sm text-primary">
-            Sign in to save this address for future purchases
+            {t.sign_in_save || 'Sign in to save this address for future purchases'}
           </p>
         </div>
       )}
 
       {session?.user && addresses.length > 0 && (
         <div className="space-y-4">
-          <h3 className="font-medium">Select Shipping Address</h3>
+          <h3 className="font-medium">{t.select_address || 'Select Shipping Address'}</h3>
           <RadioGroup
             value={selectedAddressId}
             onValueChange={(value) => {
               setSelectedAddressId(value)
               setShowNewAddressForm(value === "new")
             }}
+            dir={isRtl ? 'rtl' : 'ltr'}
           >
             {addresses.map((address) => (
               <div key={address._id} className="flex items-center space-x-3">
-                <RadioGroupItem value={address._id!} id={address._id} />
+                <RadioGroupItem value={address._id!} id={address._id} className={isRtl ? 'ml-3 space-x-0' : ''} />
                 <Card className="flex-1">
                   <CardContent className="p-3">
                     <p className="font-medium">{address.firstName} {address.lastName}</p>
@@ -382,15 +348,15 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
                     <p>{address.emirates}</p>
                     <p>{address.phone}</p>
                     {address.isDefault && (
-                      <p className="text-sm text-muted-foreground">Default Address</p>
+                      <p className="text-sm text-muted-foreground">{t.default_address || 'Default Address'}</p>
                     )}
                   </CardContent>
                 </Card>
               </div>
             ))}
             <div className="flex items-center space-x-3">
-              <RadioGroupItem value="new" id="new" />
-              <label htmlFor="new" className="text-sm">Use a new address</label>
+              <RadioGroupItem value="new" id="new" className={isRtl ? 'ml-3' : ''} />
+              <label htmlFor="new" className="text-sm">{t.use_new_address || 'Use a new address'}</label>
             </div>
           </RadioGroup>
         </div>
@@ -398,7 +364,7 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
 
       {showNewAddressForm && (
         <div className="space-y-4 border rounded-lg p-4">
-          <h3 className="font-medium">New Shipping Address</h3>
+          <h3 className="font-medium">{t.new_address || 'New Shipping Address'}</h3>
           <Form {...addressForm}>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -407,23 +373,23 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>First Name</FormLabel>
+                      <FormLabel>{t.first_name || 'First Name'}</FormLabel>
                       <FormControl>
-                        <Input placeholder="First Name" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={addressForm.control}
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Last Name</FormLabel>
+                      <FormLabel>{t.last_name || 'Last Name'}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Last Name" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -436,9 +402,9 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
+                    <FormLabel>{t.address || 'Address'}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Address" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -450,9 +416,9 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
                 name="aptSuite"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Apartment/Suite (Optional)</FormLabel>
+                    <FormLabel>{t.apt_suite || 'Apartment/Suite (Optional)'}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Apt/Suite" {...field} />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -465,23 +431,23 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
                   name="city"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>City</FormLabel>
+                      <FormLabel>{t.city || 'City'}</FormLabel>
                       <FormControl>
-                        <Input placeholder="City" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={addressForm.control}
                   name="country"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Country</FormLabel>
+                      <FormLabel>{t.country || 'Country'}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Country" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -495,23 +461,23 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
                   name="emirates"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Emirates</FormLabel>
+                      <FormLabel>{t.state_province || t.emirates || 'State / Province'}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Emirates" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={addressForm.control}
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone</FormLabel>
+                      <FormLabel>{t.phone || 'Phone'}</FormLabel>
                       <FormControl>
-                        <Input type="tel" placeholder="Phone" {...field} />
+                        <Input type="tel" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -523,67 +489,45 @@ function CheckoutFormContent({ finalTotal, appliedPromo }: CheckoutFormProps) {
         </div>
       )}
 
-      <div className="mb-6">
-        <PaymentElement />
+      <div className="space-y-4 border rounded-lg p-4">
+        <h3 className="font-medium">{t.payment_method || 'Payment Method'}</h3>
+        <RadioGroup
+          value={paymentMethod}
+          onValueChange={(value: 'card' | 'cash') => setPaymentMethod(value)}
+          className="flex flex-col space-y-2"
+          dir={isRtl ? 'rtl' : 'ltr'}
+        >
+          <div className="flex items-center space-x-3">
+            <RadioGroupItem value="card" id="pm-card" className={isRtl ? 'ml-3 space-x-0' : ''} />
+            <label htmlFor="pm-card" className="font-medium">{t.credit_card || 'Credit Card'}</label>
+          </div>
+          <div className="flex items-center space-x-3">
+            <RadioGroupItem value="cash" id="pm-cash" className={isRtl ? 'ml-3 space-x-0' : ''} />
+            <label htmlFor="pm-cash" className="font-medium">{t.cash || 'Cash on Delivery'}</label>
+          </div>
+        </RadioGroup>
+      </div>
+
+      <div className={`mb-6 ${paymentMethod === 'cash' ? 'hidden' : ''}`}>
+        {paymentMethod === 'card' && clientSecret && (
+          <StripeWrapper clientSecret={clientSecret} ref={stripeRef} />
+        )}
       </div>
 
       <Button
         type="submit"
         className="w-full"
-        disabled={isSubmitting || !stripe || !elements || (!selectedAddressId && !showNewAddressForm)}
+        disabled={isSubmitting || (paymentMethod === 'card' && (!stripeRef.current?.stripe)) || (!selectedAddressId && !showNewAddressForm)}
       >
         {isSubmitting ? (
           <>
             <Spinner className="mr-2" />
-            Processing...
+            {t.processing || 'Processing...'}
           </>
         ) : (
-          'Pay and Place Order'
+          paymentMethod === 'card' ? (t.pay_card || 'Pay and Place Order') : (t.pay_cash || 'Place Order with Cash')
         )}
       </Button>
     </form>
-  )
-}
-
-export function CheckoutForm(props: CheckoutFormProps) {
-  const [clientSecret, setClientSecret] = useState("")
-  const { state: { total } } = useCart()
-
-  useEffect(() => {
-    if (!props.paymentIntentId) {
-      // Create new payment intent only if one doesn't exist
-      fetch("/api/payments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          amount: props.finalTotal,
-          promoCode: props.appliedPromo
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setClientSecret(data.clientSecret)
-          props.setPaymentIntentId(data.paymentIntentId)
-          Cookies.set('temp_payment_intent', data.paymentIntentId, { expires: 1/24 })
-        })
-    }
-  }, []) // Only run once on mount
-
-  // Add cleanup on unmount
-  useEffect(() => {
-    return () => {
-      Cookies.remove('temp_payment_intent')
-      Cookies.remove('temp_promo')
-    }
-  }, [])
-
-  if (!clientSecret) {
-    return <Spinner />
-  }
-
-  return (
-    <Elements stripe={stripePromise} options={{ clientSecret }}>
-      <CheckoutFormContent {...props} />
-    </Elements>
   )
 }

@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils"
 interface OrderStatusProps {
   status: string
   className?: string
+  dict?: any
 }
 
 const statusStyles = {
@@ -15,13 +16,16 @@ const statusStyles = {
 
 type StatusType = keyof typeof statusStyles
 
-export function OrderStatus({ status, className }: OrderStatusProps) {
+export function OrderStatus({ status, className, dict }: OrderStatusProps) {
   const statusKey = status.toLowerCase() as StatusType
   const baseStyles = "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
-  
+
+  const statusDict = dict?.checkout?.status || {}
+  const localizedStatus = statusDict[statusKey] || status
+
   return (
     <span className={cn(baseStyles, statusStyles[statusKey], className)}>
-      {status}
+      {localizedStatus}
     </span>
   )
-} 
+}

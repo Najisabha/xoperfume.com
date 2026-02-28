@@ -8,17 +8,18 @@ import { Input } from "@/components/ui/input"
 import { formatPrice } from "@/lib/utils"
 import { Trash2 } from "lucide-react"
 
-export function CartItems() {
+export function CartItems({ dict, lang }: { dict: any, lang: string }) {
   const { state, updateQuantity, removeItem } = useCart()
+  const c = dict.cart
 
   if (state.items.length === 0) {
     return (
       <div className="text-center">
         <p className="mb-4 text-lg text-muted-foreground">
-          Your cart is empty
+          {c.empty}
         </p>
-        <Link href="/categories">
-          <Button>Continue Shopping</Button>
+        <Link href={`/${lang}/shop`}>
+          <Button>{c.continue_shopping}</Button>
         </Link>
       </div>
     )
@@ -32,7 +33,7 @@ export function CartItems() {
           className="flex gap-4 rounded-lg border p-4"
         >
           <Link
-            href={`/products/${item.slug}`}
+            href={`/${lang}/products/${item.slug}`}
             className="relative aspect-square h-24 overflow-hidden rounded-md"
           >
             <img
@@ -46,7 +47,7 @@ export function CartItems() {
             <div className="flex justify-between">
               <div>
                 <Link
-                  href={`/products/${item.slug}`}
+                  href={`/${lang}/products/${item.slug}`}
                   className="font-medium hover:underline"
                 >
                   {item.name}
@@ -78,7 +79,7 @@ export function CartItems() {
                 className="w-20"
               />
               <p className="text-sm text-muted-foreground">
-                Total: {formatPrice(item.selectedVariant.price * item.quantity)}
+                {c.total}: {formatPrice(item.selectedVariant.price * item.quantity)}
               </p>
             </div>
           </div>
@@ -86,4 +87,4 @@ export function CartItems() {
       ))}
     </div>
   )
-} 
+}

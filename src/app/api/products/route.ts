@@ -64,6 +64,8 @@ export async function POST(req: Request) {
 
     const product = await Product.create({
       name: data.name,
+      name_ar: data.name_ar || '',
+      name_he: data.name_he || '',
       basePrice: Number(data.basePrice),
       image: data.image,
       slug: data.slug,
@@ -77,6 +79,8 @@ export async function POST(req: Request) {
         images: variant.images,
         stockStatus: variant.stockStatus,
         description: variant.description || '',
+        description_ar: variant.description_ar || '',
+        description_he: variant.description_he || '',
       }))
     })
 

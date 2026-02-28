@@ -30,6 +30,8 @@ export async function POST(req: Request) {
 
         const color = await Color.create({
             name: data.name,
+            name_ar: data.name_ar || '',
+            name_he: data.name_he || '',
             hex: data.hex,
         })
 

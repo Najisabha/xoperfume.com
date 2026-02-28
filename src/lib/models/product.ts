@@ -6,7 +6,9 @@ const productVariantSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   stock: { type: Number, default: 0 },
   images: [String],
-  description: { type: String }, // Added description field
+  description: { type: String },
+  description_ar: { type: String },
+  description_he: { type: String },
   stockStatus: {
     type: String,
     enum: ['in_stock', 'low_stock', 'out_of_stock'],
@@ -16,6 +18,8 @@ const productVariantSchema = new mongoose.Schema({
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  name_ar: { type: String },
+  name_he: { type: String },
   basePrice: { type: Number, required: false },
   image: { type: String, required: false },
   slug: { type: String, required: true, unique: true },
@@ -23,7 +27,7 @@ const productSchema = new mongoose.Schema({
   variants: [productVariantSchema],
   countries: {
     type: [String],
-    default: ['uae'], // Default to UAE or empty? User said "now start with (palastine, uae, jordan)"
+    default: ['uae'],
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

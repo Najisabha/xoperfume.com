@@ -5,7 +5,7 @@ import { useFilter } from "@/contexts/filter-context"
 import { Slider } from "@/components/ui/slider"
 import { formatPrice } from "@/lib/utils"
 
-export function PriceFilter() {
+export function PriceFilter({ dict }: { dict?: any }) {
   const { filters, setPriceRange } = useFilter()
   const [localRange, setLocalRange] = useState(filters.priceRange)
 
@@ -23,7 +23,7 @@ export function PriceFilter() {
 
   return (
     <div className="space-y-4">
-      <h2 className="font-semibold">Price Range</h2>
+      <h2 className="font-semibold">{dict?.price_range || "Price Range"}</h2>
       <Slider
         min={200}
         max={10000}

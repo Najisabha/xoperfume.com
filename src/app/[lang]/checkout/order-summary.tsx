@@ -14,10 +14,12 @@ interface OrderSummaryProps {
   appliedPromo: any
   originalTotal?: number
   onRemovePromo: () => void
+  lang?: string
+  dict?: any
 }
 
-export function OrderSummary({ 
-  items, 
+export function OrderSummary({
+  items,
   total,
   promoCode,
   setPromoCode,
@@ -25,26 +27,34 @@ export function OrderSummary({
   isValidatingPromo,
   appliedPromo,
   originalTotal,
-  onRemovePromo
+  onRemovePromo,
+  lang,
+  dict
 }: OrderSummaryProps) {
+  const t = dict?.checkout || {}
+  const isRtl = lang === 'ar' || lang === 'he'
+
   return (
-    <div className="rounded-lg border p-6">
-      <h2 className="mb-4 text-lg font-medium">Order Summary</h2>
+    <div className="rounded-lg border p-6" dir={isRtl ? 'rtl' : 'ltr'}>
+      <h2 className="mb-4 text-lg font-medium">{t.summary || 'Order Summary'}</h2>
       <div className="space-y-4">
-        {items.map((item, index) => (
-          <div key={index} className="flex justify-between text-sm">
-            <span>
-              {item.name} × {item.quantity}
-            </span>
-            <span className="text-muted-foreground">
-              {formatPrice(item.selectedVariant.price * item.quantity)}
-            </span>
-          </div>
-        ))}
-        
+        {items.map((item, index) => {
+          const localizedName = lang === 'ar' ? item.name_ar : lang === 'he' ? item.name_he : item.name;
+          return (
+            <div key={index} className="flex justify-between text-sm">
+              <span>
+                {localizedName || item.name} × {item.quantity}
+              </span>
+              <span className="text-muted-foreground">
+                {formatPrice(item.selectedVariant.price * item.quantity)}
+              </span>
+            </div>
+          );
+        })}
+
         {!appliedPromo ? (
           <>
-          {/* PromoCode goes here */}
+            {/* PromoCode goes here */}
           </>
           // <div className="flex gap-2 mb-4">
           //   <Input
@@ -65,9 +75,9 @@ export function OrderSummary({
         ) : (
           <div className="flex justify-between items-center mb-4 p-2 bg-muted rounded">
             <div>
-              <p className="text-sm font-medium">Promo code: {appliedPromo.code}</p>
+              <p className="text-sm font-medium">{t.promo_code || 'Promo code: '} {appliedPromo.code}</p>
               <p className="text-sm text-green-600">
-                Discount: ${appliedPromo.calculatedDiscount.toFixed(2)}
+                {t.discount || 'Discount: '} ${appliedPromo.calculatedDiscount.toFixed(2)}
               </p>
             </div>
             <Button
@@ -76,7 +86,7 @@ export function OrderSummary({
               size="sm"
               onClick={onRemovePromo}
             >
-              Remove
+              {t.remove || 'Remove'}
             </Button>
           </div>
         )}
@@ -85,17 +95,17 @@ export function OrderSummary({
           {appliedPromo && (
             <>
               <div className="flex justify-between text-sm mb-2">
-                <span>Subtotal</span>
+                <span>{t.subtotal || 'Subtotal'}</span>
                 <span className="text-muted-foreground">{formatPrice(originalTotal || total)}</span>
               </div>
               <div className="flex justify-between text-sm mb-2 text-green-600">
-                <span>Promo Code Discount</span>
+                <span>{t.promo_discount || 'Promo Code Discount'}</span>
                 <span>-{formatPrice(appliedPromo.calculatedDiscount)}</span>
               </div>
             </>
           )}
           <div className="flex justify-between">
-            <span className="font-medium">Total</span>
+            <span className="font-medium">{t.total || 'Total'}</span>
             <span className="font-medium">{formatPrice(total)}</span>
           </div>
         </div>

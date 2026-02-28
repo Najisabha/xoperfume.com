@@ -7,7 +7,7 @@ import { OrderSummary } from "./order-summary"
 import { toast } from "@/components/ui/use-toast"
 import Cookies from 'js-cookie'
 
-export default function CheckoutPageClient() {
+export default function CheckoutPageClient({ lang, dict }: { lang: string, dict: any }) {
   const { state: { items, total } } = useCart()
   const [promoCode, setPromoCode] = useState("")
   const [appliedPromo, setAppliedPromo] = useState<any>(null)
@@ -41,7 +41,7 @@ export default function CheckoutPageClient() {
 
   async function validatePromoCode() {
     setIsValidatingPromo(true)
-    
+
     try {
       const response = await fetch("/api/promo-codes/validate", {
         method: "POST",
@@ -52,19 +52,19 @@ export default function CheckoutPageClient() {
 
       if (data.valid) {
         setAppliedPromo(data.promoCode)
-        Cookies.set('temp_promo', JSON.stringify(data.promoCode), { expires: 1/24 })
-        
+        Cookies.set('temp_promo', JSON.stringify(data.promoCode), { expires: 1 / 24 })
+
         // Update payment intent with new amount
         await fetch("/api/payments", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             amount: total - data.promoCode.calculatedDiscount,
             promoCode: data.promoCode,
             paymentIntentId: paymentIntentId
           }),
         })
-        
+
         toast({
           title: "Promo code applied!",
           description: `Discount: $${data.promoCode.calculatedDiscount.toFixed(2)}`,
@@ -73,12 +73,12 @@ export default function CheckoutPageClient() {
         // Just remove the promo code and continue with original price
         Cookies.remove('temp_promo')
         setAppliedPromo(null)
-        
+
         // Update payment intent with original amount
         await fetch("/api/payments", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             amount: total,
             paymentIntentId: paymentIntentId
           }),
@@ -111,18 +111,22 @@ export default function CheckoutPageClient() {
     return null
   }
 
+  const isRTL = lang === 'ar' || lang === 'he'
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-3xl font-bold">Checkout</h1>
+    <div className="container mx-auto px-4 py-8" dir={isRTL ? 'rtl' : 'ltr'}>
+      <h1 className="mb-8 text-3xl font-bold">{dict?.checkout?.title || 'Checkout'}</h1>
       <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
-        <CheckoutForm 
+        <CheckoutForm
           finalTotal={finalTotal}
           appliedPromo={appliedPromo}
           paymentIntentId={paymentIntentId}
           setPaymentIntentId={setPaymentIntentId}
+          lang={lang}
+          dict={dict}
         />
-        <OrderSummary 
-          items={items} 
+        <OrderSummary
+          items={items}
           total={finalTotal}
           originalTotal={total}
           promoCode={promoCode}
@@ -131,6 +135,8 @@ export default function CheckoutPageClient() {
           onRemovePromo={removePromoCode}
           isValidatingPromo={isValidatingPromo}
           appliedPromo={appliedPromo}
+          lang={lang}
+          dict={dict}
         />
       </div>
     </div>

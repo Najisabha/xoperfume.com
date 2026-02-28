@@ -13,10 +13,9 @@ export async function GET() {
 
     const session = await getServerSession(authConfig)
     await connectDB()
-    
+
     const user = await User.findById(session?.user.id).select("-password")
     if (!user) {
-      console.log(`Could not find user with id: ${session?.user.id}`)
       return new NextResponse("User not found", { status: 404 })
     }
 

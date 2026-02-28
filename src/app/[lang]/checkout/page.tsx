@@ -28,9 +28,15 @@ export async function generateMetadata({ params }: { params: any }) {
   }
 }
 
-const CheckoutPage = () => {
+import { getDictionary } from '@/lib/get-dictionary'
+
+const CheckoutPage = async ({ params }: { params: any }) => {
+  const resolvedParams = await params
+  const lang = resolvedParams.lang
+  const dict = await getDictionary(lang)
+
   return (
-    <CheckoutPageClient />
+    <CheckoutPageClient lang={lang} dict={dict} />
   )
 }
 

@@ -3,11 +3,21 @@ import { CategoryFilter } from "@/components/filters/category-filter"
 import { PriceFilter } from "@/components/filters/price-filter"
 import { SortSelector } from "@/components/filters/sort-selector"
 import { SearchFilter } from "@/components/filters/search-filter"
+import { getDictionary } from "@/lib/get-dictionary"
+import { Locale } from "@/lib/i18n-config"
 
-export async function generateMetadata() {
-  const title = 'Collections - XO Perfumes'
-  const description = 'Explore the collections of luxury jewelry for kids by XO Perfumes.'
-  const url = 'https://www.graceleonard.com/categories'
+interface PageProps {
+  params: {
+    lang: Locale
+  }
+}
+
+export async function generateMetadata({ params }: PageProps) {
+  const { lang } = await params
+  const dict = await getDictionary(lang)
+  const title = dict.shop.metadata_title
+  const description = dict.shop.metadata_description
+  const url = `${process.env.NEXT_PUBLIC_SITE_URL}/${lang}/shop`
 
   return {
     title,
@@ -23,29 +33,33 @@ export async function generateMetadata() {
       card: 'summary',
       title,
       description,
-      site: '@graceleonard',
+      site: '@xoperfumes',
     },
   }
 }
 
-export default async function CategoriesPage() {
+export default async function CategoriesPage({ params }: PageProps) {
+  const { lang } = await params
+  const dict = await getDictionary(lang)
+  const isRtl = lang === 'ar' || lang === 'he'
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-3xl font-bold">Collections</h1>
+    <div className="container mx-auto px-4 py-8" dir={isRtl ? 'rtl' : 'ltr'}>
+      <h1 className="mb-8 text-3xl font-bold">{dict.shop.title}</h1>
 
       <div className="mb-8 flex items-center justify-between">
-        <SearchFilter />
-        <SortSelector />
+        <SearchFilter dict={dict.shop} />
+        <SortSelector dict={dict.shop} />
       </div>
 
       <div className="grid gap-8 md:grid-cols-[240px_1fr]">
         <aside className="space-y-8">
-          <CategoryFilter />
-          <PriceFilter />
+          <CategoryFilter dict={dict.shop} lang={lang} />
+          <PriceFilter dict={dict.shop} />
         </aside>
 
         <main>
-          <ProductGrid />
+          <ProductGrid lang={lang} dict={dict.shop} />
         </main>
       </div>
     </div>

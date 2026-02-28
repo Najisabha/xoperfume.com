@@ -12,7 +12,7 @@ interface Category {
   slug: string
 }
 
-export function CategoryFilter() {
+export function CategoryFilter({ dict, lang }: { dict?: any, lang: string }) {
   const { filters, setCategories } = useFilter()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -45,11 +45,11 @@ export function CategoryFilter() {
     try {
       setIsLoading(true)
       setError(null)
-      
+
       const updatedCategories = filters.categories.includes(categorySlug)
         ? filters.categories.filter((slug) => slug !== categorySlug)
         : [...filters.categories, categorySlug]
-      
+
       await setCategories(updatedCategories)
     } catch (err) {
       setError('Failed to update category filter')
@@ -74,22 +74,24 @@ export function CategoryFilter() {
 
   return (
     <div className="space-y-4">
-      <h2 className="font-semibold">Categories</h2>
+      <h2 className="font-semibold">{dict?.categories || "Categories"}</h2>
       {isLoading && (
         <div className="flex items-center gap-2">
           <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-sm text-muted-foreground">Updating...</span>
+          <span className="text-sm text-muted-foreground">{dict?.updating || "Updating..."}</span>
         </div>
       )}
       <div className="space-y-3">
-        {categories.map((category) => (
+        {categories.map((category: any) => (
           <div key={category._id} className="flex items-center space-x-2">
             <Checkbox
               id={category.slug}
               checked={filters.categories.includes(category.slug)}
               onCheckedChange={() => handleCategoryChange(category.slug)}
             />
-            <Label htmlFor={category.slug}>{category.name}</Label>
+            <Label htmlFor={category.slug}>
+              {lang === 'ar' ? category.name_ar : lang === 'he' ? category.name_he : category.name}
+            </Label>
           </div>
         ))}
       </div>

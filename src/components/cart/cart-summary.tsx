@@ -8,25 +8,26 @@ import { formatPrice } from "@/lib/utils"
 import { useCart } from "@/contexts/cart-context"
 import { toast } from "@/components/ui/use-toast"
 
-export function CartSummary() {
+export function CartSummary({ dict, lang }: { dict: any, lang: string }) {
   const { state: { total, items } } = useCart()
+  const c = dict.cart
 
   return (
     <div className="rounded-lg border p-6">
-      <h2 className="mb-4 text-lg font-semibold">Order Summary</h2>
+      <h2 className="mb-4 text-lg font-semibold">{c.order_summary}</h2>
 
       <div className="space-y-4">
         <div className="flex justify-between">
-          <span>Subtotal</span>
+          <span>{c.subtotal}</span>
           <span>{formatPrice(total)}</span>
         </div>
         <div className="flex justify-between">
-          <span>Shipping</span>
-          <span>Calculated at checkout</span>
+          <span>{c.shipping}</span>
+          <span>{c.calc_checkout}</span>
         </div>
         <div className="border-t pt-4">
           <div className="flex justify-between font-medium">
-            <span>Total</span>
+            <span>{c.total}</span>
             <span>{formatPrice(total)}</span>
           </div>
         </div>
@@ -37,8 +38,8 @@ export function CartSummary() {
             className="w-full"
             disabled={items.length === 0}
           >
-            <Link href="/checkout">
-              Proceed to Checkout
+            <Link href={`/${lang}/checkout`}>
+              {c.checkout}
             </Link>
           </Button>
         </div>
